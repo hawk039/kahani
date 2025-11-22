@@ -5,6 +5,7 @@ import '../network/api_client.dart';
 class AuthRepository {
   final Dio _dio = ApiClient.dio;
 
+
   Future<SignUpResult> signUp({
     required String email,
     required String password,
