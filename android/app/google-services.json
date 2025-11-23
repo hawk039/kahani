@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "483636251174",
+    "project_id": "moksha-app-37cd9",
+    "storage_bucket": "moksha-app-37cd9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:483636251174:android:3743d1f1a6a96bb005b4e7",
+        "android_client_info": {
+          "package_name": "com.kahani.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "483636251174-ivros4mu1nii96q3d583fgdoiqci3sbs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC30SCmAJxCXYpI7v_bwZMecsNJK41NdIQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "483636251174-ivros4mu1nii96q3d583fgdoiqci3sbs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

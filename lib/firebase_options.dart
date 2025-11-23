@@ -41,46 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAtL78105DKTZFD2lJjFC43Z_GQ0u4QfXM',
-    appId: '1:990150681574:web:18a3f05013b3075e9cec27',
-    messagingSenderId: '990150681574',
-    projectId: 'chat-app-b3ea4',
-    authDomain: 'chat-app-b3ea4.firebaseapp.com',
-    storageBucket: 'chat-app-b3ea4.firebasestorage.app',
+    apiKey: 'AIzaSyB2fAT6Ivn84I1hr-Ia_8h_h7dn-yXSDm0',
+    appId: '1:483636251174:web:f6274a228aec626605b4e7',
+    messagingSenderId: '483636251174',
+    projectId: 'moksha-app-37cd9',
+    authDomain: 'moksha-app-37cd9.firebaseapp.com',
+    storageBucket: 'moksha-app-37cd9.firebasestorage.app',
+    measurementId: 'G-2SMBH0J333',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAtIFzHhNzQ4zjZAHqnjs9U2j8l1IGd4Lg',
-    appId: '1:990150681574:android:e07b5dec3dbc81df9cec27',
-    messagingSenderId: '990150681574',
-    projectId: 'chat-app-b3ea4',
-    storageBucket: 'chat-app-b3ea4.firebasestorage.app',
+    apiKey: 'AIzaSyC30SCmAJxCXYpI7v_bwZMecsNJK41NdIQ',
+    appId: '1:483636251174:android:3743d1f1a6a96bb005b4e7',
+    messagingSenderId: '483636251174',
+    projectId: 'moksha-app-37cd9',
+    storageBucket: 'moksha-app-37cd9.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBHmTU-pkWFEkqdVNAXNnqZJNQCxPUlDS8',
-    appId: '1:990150681574:ios:a580a4ea004163789cec27',
-    messagingSenderId: '990150681574',
-    projectId: 'chat-app-b3ea4',
-    storageBucket: 'chat-app-b3ea4.firebasestorage.app',
-    iosBundleId: 'com.kahani.app.kahaniApp',
+    apiKey: 'AIzaSyBLpkE2pvJ1klEBQzYaTNmysr7gH7fn_O8',
+    appId: '1:483636251174:ios:0ed442b7d818358f05b4e7',
+    messagingSenderId: '483636251174',
+    projectId: 'moksha-app-37cd9',
+    storageBucket: 'moksha-app-37cd9.firebasestorage.app',
+    iosClientId: '483636251174-bm16d4losbobcp6s5nlcfdmsdfq8bup5.apps.googleusercontent.com',
+    iosBundleId: 'com.kahani.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBHmTU-pkWFEkqdVNAXNnqZJNQCxPUlDS8',
-    appId: '1:990150681574:ios:a580a4ea004163789cec27',
-    messagingSenderId: '990150681574',
-    projectId: 'chat-app-b3ea4',
-    storageBucket: 'chat-app-b3ea4.firebasestorage.app',
-    iosBundleId: 'com.kahani.app.kahaniApp',
+    apiKey: 'AIzaSyBLpkE2pvJ1klEBQzYaTNmysr7gH7fn_O8',
+    appId: '1:483636251174:ios:08191912aee209dc05b4e7',
+    messagingSenderId: '483636251174',
+    projectId: 'moksha-app-37cd9',
+    storageBucket: 'moksha-app-37cd9.firebasestorage.app',
+    iosClientId: '483636251174-v42c0h8fi99d5sjssv9lbg7okim1s8l7.apps.googleusercontent.com',
+    iosBundleId: 'com.example.kahaniApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBJyrYw8y71Xegn1TkJ41R6KtIRxkzktUs',
-    appId: '1:990150681574:web:c6f89bafb486f6c29cec27',
-    messagingSenderId: '990150681574',
-    projectId: 'chat-app-b3ea4',
-    authDomain: 'chat-app-b3ea4.firebaseapp.com',
-    storageBucket: 'chat-app-b3ea4.firebasestorage.app',
+    apiKey: 'AIzaSyB2fAT6Ivn84I1hr-Ia_8h_h7dn-yXSDm0',
+    appId: '1:483636251174:web:9d4af27906b0c3f405b4e7',
+    messagingSenderId: '483636251174',
+    projectId: 'moksha-app-37cd9',
+    authDomain: 'moksha-app-37cd9.firebaseapp.com',
+    storageBucket: 'moksha-app-37cd9.firebasestorage.app',
+    measurementId: 'G-PS7YFE18SD',
   );
+
 }

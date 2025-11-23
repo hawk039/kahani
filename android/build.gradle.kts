@@ -1,3 +1,16 @@
+// Root-level build.gradle.kts
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.2.1") // make sure this matches your AGP
+        classpath("com.google.gms:google-services:4.4.2")  // Firebase plugin
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -5,16 +18,15 @@ allprojects {
     }
 }
 
-val newBuildDir: Directory =
-    rootProject.layout.buildDirectory
-        .dir("../../build")
-        .get()
+// Optional: your custom build directories
+val newBuildDir = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.value(newSubprojectBuildDir)
+    val newSubBuildDir = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubBuildDir)
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }

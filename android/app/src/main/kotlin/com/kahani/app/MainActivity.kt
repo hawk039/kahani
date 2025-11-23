@@ -1,4 +1,4 @@
-package com.example.kahani_app
+package com.kahani.app
 
 import io.flutter.embedding.android.FlutterActivity
 
