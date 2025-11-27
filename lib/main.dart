@@ -15,8 +15,7 @@ void main() async {
 
   // Google Sign-In init
   await GoogleSignInService().initialize(
-    serverClientId: DefaultFirebaseOptions.currentPlatform
-        .apiKey, // OR your Web client ID
+    serverClientId: "483636251174-ivros4mu1nii96q3d583fgdoiqci3sbs.apps.googleusercontent.com", // OR your Web client ID
   );
 
   runApp(const MyApp());

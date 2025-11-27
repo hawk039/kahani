@@ -1,6 +1,7 @@
 // lib/presentation/auth/signup/signup_view_model.dart
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/repositories/auth_repository.dart';
@@ -70,20 +71,44 @@ class SignUpViewModel extends ChangeNotifier {
   }
 
   Future<void> onGoogleSignUp() async {
+    clearError();
+    setLoading(true);
+
     try {
-      setLoading(true);
+      // Use the already initialized GoogleSignInService
+      final userCredential = await GoogleSignInService().signInWithGoogle();
+      final user = userCredential.user;
 
-      final credential = await GoogleSignInService().signInWithGoogle();
+      if (user == null) {
+        _setError('Google Sign-In failed: user is null');
+        return;
+      }
 
-      // send credential.user?.uid or google token to backend here
-      print("Signed in as: ${credential.user?.email}");
+      log('Google Sign-Up successful: ${user.email}, UID: ${user.uid}');
 
+      // Send Firebase UID / token to backend
+      final result = await _repo.signUpWithGoogle(
+        uid: user.uid,
+        email: user.email ?? '', // default to empty string if null
+        token: await user.getIdToken()??"",
+      );
+
+
+      if (result.ok) {
+        log('Backend sign-up successful, token: ${result.token}');
+      } else {
+        _setError(result.error ?? 'Backend sign-up failed');
+      }
+
+    } on FirebaseAuthException catch (e) {
+      _setError('Firebase Auth Error: ${e.message}');
     } catch (e) {
-      _setError(e.toString());
+      _setError('Sign-Up Error: ${e.toString()}');
     } finally {
       setLoading(false);
     }
   }
+
 
 
   @override
