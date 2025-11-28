@@ -30,14 +30,15 @@ class StoriesPage extends StatelessWidget {
             ),
             // Search Bar
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: TextField(
+                style: const TextStyle(
+                  color: AppTheme.textLight, // Typed text color
+                ),
+                cursorColor: AppTheme.textLight, // Cursor color
                 decoration: InputDecoration(
                   hintText: "Search your stories...",
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: AppTheme.textMutedDark,
-                  ),
+                  prefixIcon: Icon(Icons.search, color: AppTheme.textMutedDark),
                   filled: true,
                   fillColor: AppTheme.borderDarker,
                   border: OutlineInputBorder(
@@ -103,10 +104,7 @@ class StoriesPage extends StatelessWidget {
         onPressed: () {},
         backgroundColor: AppTheme.secondary,
         shape: const CircleBorder(), // 🔥 makes it a perfect circle
-        child: const Icon(
-          Icons.auto_awesome,
-          color: AppTheme.textLight,
-        ),
+        child: const Icon(Icons.auto_awesome, color: AppTheme.textLight),
       ),
     );
   }

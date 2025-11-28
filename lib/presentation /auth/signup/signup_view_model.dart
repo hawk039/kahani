@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../services/google_signin_service.dart';
@@ -85,16 +86,18 @@ class SignUpViewModel extends ChangeNotifier {
       }
 
       log('Google Sign-Up successful: ${user.email}, UID: ${user.uid}');
-
+      final token = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
       // Send Firebase UID / token to backend
       final result = await _repo.signUpWithGoogle(
         uid: user.uid,
         email: user.email ?? '', // default to empty string if null
-        token: await user.getIdToken() ?? "",
+        token: token,
       );
 
       if (result.ok) {
         log('Backend sign-up successful, token: ${result.token}');
+        var box = Hive.box('authBox');
+        await box.put('token', token);
         return true; // ✅ Sign-up success
       } else {
         _setError(result.error ?? 'Backend sign-up failed');
@@ -110,7 +113,6 @@ class SignUpViewModel extends ChangeNotifier {
       setLoading(false);
     }
   }
-
 
 
   @override
