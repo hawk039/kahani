@@ -70,7 +70,7 @@ class SignUpViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> onGoogleSignUp() async {
+  Future<bool> onGoogleSignUp() async {
     clearError();
     setLoading(true);
 
@@ -81,7 +81,7 @@ class SignUpViewModel extends ChangeNotifier {
 
       if (user == null) {
         _setError('Google Sign-In failed: user is null');
-        return;
+        return false;
       }
 
       log('Google Sign-Up successful: ${user.email}, UID: ${user.uid}');
@@ -90,20 +90,22 @@ class SignUpViewModel extends ChangeNotifier {
       final result = await _repo.signUpWithGoogle(
         uid: user.uid,
         email: user.email ?? '', // default to empty string if null
-        token: await user.getIdToken()??"",
+        token: await user.getIdToken() ?? "",
       );
-
 
       if (result.ok) {
         log('Backend sign-up successful, token: ${result.token}');
+        return true; // ✅ Sign-up success
       } else {
         _setError(result.error ?? 'Backend sign-up failed');
+        return false; // ❌ Backend returned error
       }
-
     } on FirebaseAuthException catch (e) {
       _setError('Firebase Auth Error: ${e.message}');
+      return false;
     } catch (e) {
       _setError('Sign-Up Error: ${e.toString()}');
+      return false;
     } finally {
       setLoading(false);
     }

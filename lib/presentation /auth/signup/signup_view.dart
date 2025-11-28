@@ -1,6 +1,7 @@
 // lib/presentation/auth/signup/signup_view.dart
 import 'package:flutter/material.dart';
 import 'package:kahani_app/presentation%20/auth/signup/widgets/password_field.dart';
+import 'package:kahani_app/presentation%20/stories/stories.dart';
 import 'package:provider/provider.dart';
 import '../../../core/utils/theme.dart';
 import '../../../core/utils/assets.dart';
@@ -128,8 +129,14 @@ class _SignUpScreen extends StatelessWidget {
                           ),
                           label: 'Google',
                           // iconPath can be a raster or svg path from AppAssets if you add it
-                          onPressed: () {
-                            vm.onGoogleSignUp();
+                          onPressed: () async {
+                            final isAuthenticated=await vm.onGoogleSignUp();
+                            if (isAuthenticated) {
+                              // Navigate to Stories screen and remove previous routes
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: (_) => StoriesPage()),
+                              );
+                            }
                           },
                         ),
                       ),

@@ -9,8 +9,9 @@ class AppTheme {
   static const Color surfaceDark = Color(0xFF111827);
   static const Color surfaceLight = Colors.white;
   static const Color borderDark = Color(0xFF374151);
+  static const Color borderDarker = Color(0xFF21272F);
   static const Color borderLight = Color(0xFFD1D5DB);
-  static const Color textLight =Colors.white;
+  static const Color textLight = Colors.white;
   static const Color textDark = Color(0xFF111827);
   static const Color textMutedLight = Color(0xFF6B7280);
   static const Color textMutedDark = Color(0xFF9CA3AF);
@@ -21,7 +22,7 @@ class AppTheme {
   // Text Styles
   static final TextStyle heading = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: FontWeight.bold,
     color: textLight,
   );
@@ -30,7 +31,7 @@ class AppTheme {
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w500,
-    color:textLight,
+    color: textLight,
   );
 
   static final TextStyle input = TextStyle(
@@ -46,6 +47,21 @@ class AppTheme {
     fontWeight: FontWeight.bold,
     color: textLight,
   );
+
+  // New Space Grotesk specific style (optional usage)
+  static final TextStyle spaceGrotesk = TextStyle(
+    fontFamily: "SpaceGrotesk",
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: textDark,
+  );
+
+  static TextStyle inputStyle(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return input.copyWith(
+      color: isDark ? textMutedDark : textMutedDark,
+    );
+  }
 
   // --- ThemeData objects ---
   static final ThemeData lightTheme = ThemeData(
