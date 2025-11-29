@@ -58,9 +58,7 @@ class AppTheme {
 
   static TextStyle inputStyle(BuildContext context) {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return input.copyWith(
-      color: isDark ? textMutedDark : textMutedDark,
-    );
+    return input.copyWith(color: isDark ? textMutedDark : textMutedDark);
   }
 
   // --- ThemeData objects ---
@@ -97,14 +95,15 @@ class AppTheme {
         backgroundColor: secondary,
         foregroundColor: textLight,
         textStyle: buttonText,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
   );
-
+  static final appBarTheme = TextStyle(
+    backgroundColor: primary,
+  );
   static final ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
     primaryColor: primary,
     scaffoldBackgroundColor: backgroundDark,
     fontFamily: fontFamily,
@@ -113,11 +112,19 @@ class AppTheme {
       secondary: secondary,
       background: backgroundDark,
       surface: surfaceDark,
-      onPrimary: textDark,
-      onSecondary: textDark,
-      onBackground: textDark,
-      onSurface: textDark,
+      onPrimary: textLight,
+      onSecondary: textLight,
+      onBackground: textLight,
+      onSurface: textLight,
     ),
+
+    appBarTheme: const AppBarTheme(
+      backgroundColor: primary,
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: IconThemeData(color: textLight),
+    ),
+
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: surfaceDark,
@@ -131,14 +138,13 @@ class AppTheme {
       ),
       hintStyle: TextStyle(color: textMutedDark),
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: secondary,
-        foregroundColor: textDark,
+        foregroundColor: textLight,
         textStyle: buttonText,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
   );
