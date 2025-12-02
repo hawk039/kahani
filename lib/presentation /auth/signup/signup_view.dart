@@ -33,7 +33,7 @@ class _SignUpScreen extends StatelessWidget {
     final vm = context.watch<SignUpViewModel>();
 
     return Scaffold(
-      backgroundColor: AppTheme.surfaceDark,
+      backgroundColor: AppTheme.primary,
       // adjust if you use dark by default
       body: SafeArea(
         child: Center(

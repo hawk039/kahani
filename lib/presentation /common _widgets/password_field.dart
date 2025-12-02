@@ -4,13 +4,15 @@ import '../../core/utils/theme.dart';
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
-  final String? errorText; // ← added
+  final String? errorText;
+  final VoidCallback? onForgotPassword; // <-- added callback
 
   const PasswordField({
     super.key,
     required this.controller,
     this.label = 'Password',
-    this.errorText, // ← added
+    this.errorText,
+    this.onForgotPassword,
   });
 
   @override
@@ -25,11 +27,30 @@ class _PasswordFieldState extends State<PasswordField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: AppTheme.label,
+        // 🔹 Label + Forgot Password (same line)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.label,
+              style: AppTheme.label,
+            ),
+              GestureDetector(
+                onTap: widget.onForgotPassword,
+                child: Text(
+                  "Forgot Password?",
+                  style: AppTheme.label.copyWith(
+                    fontSize: 12,
+                    color: AppTheme.secondary,
+                  ),
+                ),
+              ),
+          ],
         ),
+
         const SizedBox(height: 8),
+
+        // 🔹 Password TextField
         TextField(
           controller: widget.controller,
           obscureText: _obscure,
@@ -44,7 +65,6 @@ class _PasswordFieldState extends State<PasswordField> {
             filled: true,
             fillColor: AppTheme.surfaceLight,
 
-            // 🔴 show red error under field
             errorText: widget.errorText,
 
             border: OutlineInputBorder(

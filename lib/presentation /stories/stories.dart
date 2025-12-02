@@ -107,7 +107,7 @@ class StoriesPage extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            barrierColor: AppTheme.primary.withOpacity(0.8), // dim behind dialog
+            barrierColor: AppTheme.primary.withOpacity(0.9), // dim behind dialog
             builder: (context) => Dialog(
               insetPadding: const EdgeInsets.all(16),
               backgroundColor: Colors.transparent, // make dialog itself transparent
