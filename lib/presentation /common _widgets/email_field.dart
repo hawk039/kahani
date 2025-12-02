@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/utils/theme.dart';
+import '../../core/utils/theme.dart';
 
 class EmailField extends StatelessWidget {
   final TextEditingController controller;

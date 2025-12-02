@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart'
+    show SignInWithApple, AppleIDAuthorizationScopes;
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../services/google_signin_service.dart';
@@ -114,6 +116,53 @@ class SignUpViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> onAppleSignUp() async {
+    clearError();
+    setLoading(true);
+
+    try {
+      // Trigger Apple Sign-In
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      if (credential.userIdentifier == null) {
+        _setError('Apple Sign-In failed: user ID is null');
+        return false;
+      }
+
+      final uid = credential.userIdentifier!;
+      final email =
+          credential.email ??
+          ""; // email may be null if user already signed in before
+      final token = credential.identityToken ?? "";
+
+      // Send Apple credentials to your backend
+      final result = await _repo.signUpWithApple(
+        uid: uid,
+        email: email,
+        token: token,
+      );
+
+      if (result.ok) {
+        log('Backend Apple Sign-Up successful, token: ${result.token}');
+        var box = Hive.box('authBox');
+        await box.put('token', result.token);
+        return true;
+      } else {
+        _setError(result.error ?? 'Backend Apple sign-up failed');
+        return false;
+      }
+    } catch (e) {
+      _setError('Apple Sign-Up Error: ${e.toString()}');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
 
   @override
   void dispose() {

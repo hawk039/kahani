@@ -1,6 +1,6 @@
 // lib/presentation/auth/signup/widgets/signup_button.dart
 import 'package:flutter/material.dart';
-import '../../../../core/utils/theme.dart';
+import '../../core/utils/theme.dart';
 
 class SignupButton extends StatelessWidget {
   final VoidCallback onPressed;
