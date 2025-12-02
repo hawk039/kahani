@@ -153,7 +153,17 @@ class _SignUpScreen extends StatelessWidget {
                             height: 40,
                           ),
                           label: 'Apple',
-                          onPressed: () {},
+                          onPressed: () async {
+                            final isAuthenticated = await vm.onAppleSignUp();
+                            if (isAuthenticated) {
+                              // Navigate to Stories screen and remove previous routes
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (_) => StoriesPage(),
+                                ),
+                              );
+                            }
+                          },
                         ),
                       ),
                     ],
@@ -168,7 +178,6 @@ class _SignUpScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (_) => const LoginScreen()),
                     ),
                   ),
-
                 ],
               ),
             ),

@@ -1,8 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/filter_chip_widget.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/story_card.dart';
 
 import '../../core/utils/theme.dart';
+import '../home/home.dart';
 
 class StoriesPage extends StatelessWidget {
   const StoriesPage({super.key});
@@ -101,9 +104,33 @@ class StoriesPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context,
+            barrierColor: AppTheme.primary.withOpacity(0.8), // dim behind dialog
+            builder: (context) => Dialog(
+              insetPadding: const EdgeInsets.all(16),
+              backgroundColor: Colors.transparent, // make dialog itself transparent
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).dialogBackgroundColor.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: const CreateStoryDialogContent(),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
         backgroundColor: AppTheme.secondary,
-        shape: const CircleBorder(), // 🔥 makes it a perfect circle
+        shape: const CircleBorder(),
         child: const Icon(Icons.auto_awesome, color: AppTheme.textLight),
       ),
     );

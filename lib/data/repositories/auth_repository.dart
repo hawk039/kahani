@@ -13,18 +13,13 @@ class AuthRepository {
     try {
       final response = await _dio.post(
         "/auth/register",
-        data: {
-          "email": email,
-          "password": password,
-        },
+        data: {"email": email, "password": password},
       );
 
-      return SignUpResult(
-        ok: true,
-        token: response.data["access_token"],
-      );
+      return SignUpResult(ok: true, token: response.data["access_token"]);
     } on DioException catch (e) {
-      final msg = e.response?.data["detail"] ??
+      final msg =
+          e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
       return SignUpResult(ok: false, error: msg);
@@ -41,18 +36,13 @@ class AuthRepository {
     try {
       final response = await _dio.post(
         "/auth/login",
-        data: {
-          "email": email,
-          "password": password,
-        },
+        data: {"email": email, "password": password},
       );
 
-      return SignUpResult(
-        ok: true,
-        token: response.data["access_token"],
-      );
+      return SignUpResult(ok: true, token: response.data["access_token"]);
     } on DioException catch (e) {
-      final msg = e.response?.data["detail"] ??
+      final msg =
+          e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
       return SignUpResult(ok: false, error: msg);
@@ -70,19 +60,13 @@ class AuthRepository {
     try {
       final response = await _dio.post(
         "/auth/google-signup",
-        data: {
-          "uid": uid,
-          "email": email,
-          "token": token,
-        },
+        data: {"uid": uid, "email": email, "token": token},
       );
 
-      return SignUpResult(
-        ok: true,
-        token: response.data["access_token"],
-      );
+      return SignUpResult(ok: true, token: response.data["access_token"]);
     } on DioException catch (e) {
-      final msg = e.response?.data["detail"] ??
+      final msg =
+          e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
       return SignUpResult(ok: false, error: msg);
@@ -95,22 +79,66 @@ class AuthRepository {
   Future<SignUpResult> loginWithGoogle({
     required String uid,
     required String token,
+    required String email,
   }) async {
     try {
       final response = await _dio.post(
-        "/auth/google-login",
-        data: {
-          "uid": uid,
-          "token": token,
-        },
+        "/auth/google-signin",
+        data: {"uid": uid, "token": token, "email": email},
       );
 
-      return SignUpResult(
-        ok: true,
-        token: response.data["access_token"],
-      );
+      return SignUpResult(ok: true, token: response.data["access_token"]);
     } on DioException catch (e) {
-      final msg = e.response?.data["detail"] ??
+      final msg =
+          e.response?.data["detail"] ??
+          e.response?.data["message"] ??
+          "Something went wrong";
+      return SignUpResult(ok: false, error: msg);
+    } catch (e) {
+      return SignUpResult(ok: false, error: e.toString());
+    }
+  }
+
+  /// 🔹 Apple Signup
+  Future<SignUpResult> signUpWithApple({
+    required String uid,
+    required String email,
+    required String token,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/auth/apple-signup",
+        data: {"uid": uid, "email": email, "token": token},
+      );
+
+      return SignUpResult(ok: true, token: response.data["access_token"]);
+    } on DioException catch (e) {
+      final msg =
+          e.response?.data["detail"] ??
+          e.response?.data["message"] ??
+          "Something went wrong";
+      return SignUpResult(ok: false, error: msg);
+    } catch (e) {
+      return SignUpResult(ok: false, error: e.toString());
+    }
+  }
+
+  /// 🔹 Apple Login
+  Future<SignUpResult> loginWithApple({
+    required String uid,
+    required String token,
+    required String email,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/auth/apple-signin",
+        data: {"uid": uid, "token": token, "email": email},
+      );
+
+      return SignUpResult(ok: true, token: response.data["access_token"]);
+    } on DioException catch (e) {
+      final msg =
+          e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
       return SignUpResult(ok: false, error: msg);

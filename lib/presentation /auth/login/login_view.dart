@@ -122,7 +122,15 @@ class LoginScreen extends StatelessWidget {
                         height: 40,
                       ),
                       label: 'Apple',
-                      onPressed: () {},
+                      onPressed: () async {
+                        final isAuthenticated = await vm.onAppleLogin();
+                        if (isAuthenticated) {
+                          // Navigate to Stories screen and remove previous routes
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (_) => StoriesPage()),
+                          );
+                        }
+                      },
                     ),
                   ),
                 ],

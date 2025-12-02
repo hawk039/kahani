@@ -7,6 +7,7 @@ import 'package:kahani_app/presentation%20/auth/signup/signup_view.dart';
 import 'package:kahani_app/presentation%20/auth/signup/signup_view_model.dart';
 import 'package:kahani_app/presentation%20/home/home.dart';
 import 'package:kahani_app/presentation%20/home/home_view_model.dart';
+import 'package:kahani_app/presentation%20/stories/stories.dart';
 import 'package:kahani_app/services/google_signin_service.dart';
 import 'package:provider/provider.dart'; // <-- added provider
 import 'core/utils/theme.dart';
@@ -55,7 +56,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Kahani',
       theme: AppTheme.darkTheme,
-      home: isLoggedIn ? const CreateStoryScreen() : const SignUpView(),
+      home: isLoggedIn ? const StoriesPage() : const SignUpView(),
     );
   }
 }
