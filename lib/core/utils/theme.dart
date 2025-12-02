@@ -10,6 +10,7 @@ class AppTheme {
   static const Color surfaceLight = Colors.white;
   static const Color borderDark = Color(0xFF374151);
   static const Color borderDarker = Color(0xFF21272F);
+  static const Color storyCard = Color(0xFF171616);
   static const Color borderLight = Color(0xFFD1D5DB);
   static const Color textLight = Colors.white;
   static const Color textDark = Color(0xFF111827);

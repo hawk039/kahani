@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../core/utils/theme.dart';
 import '../../../core/utils/assets.dart';
 import '../../common _widgets/auth_redirect_text.dart';
-import '../../common _widgets/signup_button.dart';
+import '../../common _widgets/buttons.dart';
 import '../../common _widgets/social_button.dart';
 import '../login/login_view.dart';
 import 'signup_view_model.dart';
@@ -68,7 +68,6 @@ class _SignUpScreen extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 6),
                   Text(
                     'Create Account.',
                     style: AppTheme.input.copyWith(

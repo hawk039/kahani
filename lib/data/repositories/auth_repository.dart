@@ -123,6 +123,34 @@ class AuthRepository {
     }
   }
 
+  /// 🔹 Forgot Password
+  Future<SignUpResult> resetPassword({
+    required String email,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/auth/fpassword",
+        data: {"email": email, "new_password": newPassword},
+      );
+
+      return SignUpResult(
+        ok: true,
+        token:
+            response.data["access_token"] ??
+            "", // optional if backend returns token
+      );
+    } on DioException catch (e) {
+      final msg =
+          e.response?.data["detail"] ??
+          e.response?.data["message"] ??
+          "Something went wrong";
+      return SignUpResult(ok: false, error: msg);
+    } catch (e) {
+      return SignUpResult(ok: false, error: e.toString());
+    }
+  }
+
   /// 🔹 Apple Login
   Future<SignUpResult> loginWithApple({
     required String uid,

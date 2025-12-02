@@ -35,6 +35,7 @@ class _PasswordFieldState extends State<PasswordField> {
               widget.label,
               style: AppTheme.label,
             ),
+            if (widget.onForgotPassword != null)
               GestureDetector(
                 onTap: widget.onForgotPassword,
                 child: Text(

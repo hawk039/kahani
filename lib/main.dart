@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kahani_app/presentation%20/auth/login/login_view.dart';
 import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
+import 'package:kahani_app/presentation%20/auth/password_reset/forget_password_view_model.dart';
 import 'package:kahani_app/presentation%20/auth/signup/signup_view.dart';
 import 'package:kahani_app/presentation%20/auth/signup/signup_view_model.dart';
 import 'package:kahani_app/presentation%20/home/home.dart';
@@ -39,6 +40,7 @@ void main() async {
       providers: [ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => SignUpViewModel()),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
+        ChangeNotifierProvider(create: (_) => ForgotPasswordViewModel()),
       ],
       child: MyApp(isLoggedIn: token != null && token.isNotEmpty),
     ),

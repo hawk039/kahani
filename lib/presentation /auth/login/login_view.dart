@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kahani_app/core/utils/theme.dart';
 import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
+import 'package:kahani_app/presentation%20/auth/password_reset/forget_password.dart';
 import 'package:kahani_app/presentation%20/auth/signup/signup_view.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/email_field.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/password_field.dart';
-import 'package:kahani_app/presentation%20/common%20_widgets/signup_button.dart';
+import 'package:kahani_app/presentation%20/common%20_widgets/buttons.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/social_button.dart';
 import 'package:provider/provider.dart';
 
@@ -22,8 +23,9 @@ class LoginScreen extends StatelessWidget {
     final vm = context.watch<LoginViewModel>();
 
     return Scaffold(
-      backgroundColor:
-      isDark ? const Color(0xFF101522) : const Color(0xFFF6F6F8),
+      backgroundColor: isDark
+          ? const Color(0xFF101522)
+          : const Color(0xFFF6F6F8),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -57,7 +59,6 @@ class LoginScreen extends StatelessWidget {
                   color: isDark ? Colors.white : Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
               Text(
                 "Log in to continue your journey.",
                 textAlign: TextAlign.center,
@@ -72,7 +73,15 @@ class LoginScreen extends StatelessWidget {
               EmailField(controller: vm.emailController),
               const SizedBox(height: 16),
 
-              PasswordField(controller: vm.passwordController),
+              PasswordField(
+                controller: vm.passwordController,
+                onForgotPassword: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => ForgotPasswordScreen()),
+                  );
+                },
+              ),
 
               const SizedBox(height: 24),
 
@@ -117,7 +126,8 @@ class LoginScreen extends StatelessWidget {
                         if (ok) {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                                builder: (_) => const StoriesPage()),
+                              builder: (_) => const StoriesPage(),
+                            ),
                           );
                         }
                       },
@@ -137,7 +147,8 @@ class LoginScreen extends StatelessWidget {
                         if (ok) {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                                builder: (_) => const StoriesPage()),
+                              builder: (_) => const StoriesPage(),
+                            ),
                           );
                         }
                       },
@@ -153,9 +164,7 @@ class LoginScreen extends StatelessWidget {
                 actionText: "Sign Up",
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const SignUpView(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const SignUpView()),
                 ),
               ),
             ],

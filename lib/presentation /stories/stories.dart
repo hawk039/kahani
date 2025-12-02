@@ -13,13 +13,13 @@ class StoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.darkTheme.primaryColor,
+      backgroundColor: AppTheme.storyCard,
       body: SafeArea(
         child: Column(
           children: [
             // Top App Bar
             Container(
-              color: AppTheme.darkTheme.primaryColor,
+              color: AppTheme.storyCard,
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: Row(
                 children: [
@@ -33,25 +33,42 @@ class StoriesPage extends StatelessWidget {
             ),
             // Search Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: TextField(
                 style: const TextStyle(
-                  color: AppTheme.textLight, // Typed text color
+                  color: AppTheme.textLight,
                 ),
-                cursorColor: AppTheme.textLight, // Cursor color
+                cursorColor: AppTheme.textLight,
                 decoration: InputDecoration(
                   hintText: "Search your stories...",
-                  prefixIcon: Icon(Icons.search, color: AppTheme.textMutedDark),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: AppTheme.textMutedDark,
+                  ),
                   filled: true,
                   fillColor: AppTheme.borderDarker,
+
+                  // 🔹 Rounded corners always
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppTheme.borderLight),
+                    borderSide: BorderSide.none, // No border normally
                   ),
+
+                  // 🔹 No visible border when not focused
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+
+                  // 🔹 Blue border only when focused
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppTheme.secondary),
+                    borderSide: const BorderSide(
+                      color: AppTheme.secondary,
+                      width: 2,
+                    ),
                   ),
+
                   hintStyle: TextStyle(color: AppTheme.textMutedDark),
                 ),
               ),
