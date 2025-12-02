@@ -1,14 +1,16 @@
 // lib/presentation/auth/signup/signup_view.dart
 import 'package:flutter/material.dart';
-import 'package:kahani_app/presentation%20/auth/signup/widgets/password_field.dart';
+import 'package:kahani_app/presentation%20/common%20_widgets/password_field.dart';
 import 'package:kahani_app/presentation%20/stories/stories.dart';
 import 'package:provider/provider.dart';
 import '../../../core/utils/theme.dart';
 import '../../../core/utils/assets.dart';
+import '../../common _widgets/auth_redirect_text.dart';
+import '../../common _widgets/signup_button.dart';
 import '../../common _widgets/social_button.dart';
+import '../login/login_view.dart';
 import 'signup_view_model.dart';
-import 'widgets/email_field.dart';
-import 'widgets/signup_button.dart';
+import '../../common _widgets/email_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SignUpView extends StatelessWidget {
@@ -130,11 +132,13 @@ class _SignUpScreen extends StatelessWidget {
                           label: 'Google',
                           // iconPath can be a raster or svg path from AppAssets if you add it
                           onPressed: () async {
-                            final isAuthenticated=await vm.onGoogleSignUp();
+                            final isAuthenticated = await vm.onGoogleSignUp();
                             if (isAuthenticated) {
                               // Navigate to Stories screen and remove previous routes
                               Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (_) => StoriesPage()),
+                                MaterialPageRoute(
+                                  builder: (_) => StoriesPage(),
+                                ),
                               );
                             }
                           },
@@ -156,28 +160,15 @@ class _SignUpScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 18),
-                  GestureDetector(
-                    onTap: () {
-                      // navigate to login screen - implement routing in app.dart
-                    },
-                    child: Text.rich(
-                      TextSpan(
-                        text: 'Already have an account? ',
-                        style: AppTheme.input.copyWith(
-                          color: AppTheme.textLight,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'Log In',
-                            style: AppTheme.input.copyWith(
-                              color: AppTheme.secondary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                  AuthRedirectText(
+                    leadingText: "Already have an account?",
+                    actionText: "Log In",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
                     ),
                   ),
+
                 ],
               ),
             ),
