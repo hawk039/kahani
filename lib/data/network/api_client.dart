@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-        baseUrl: "http://192.168.31.98:8000",
+        baseUrl: "https://kahani-backend-wuj0.onrender.com",
         connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {

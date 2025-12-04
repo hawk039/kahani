@@ -58,7 +58,7 @@ class ForgotPasswordViewModel extends ChangeNotifier {
     }
   }
 
-  //TODO: we either have to use firebase for authentication completly or our backend ////
+  //TODO: we either have to use firebase for authentication completely or our backend ////
 
   @override
   void dispose() {
