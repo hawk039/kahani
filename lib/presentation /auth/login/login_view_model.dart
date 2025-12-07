@@ -21,6 +21,10 @@ class LoginViewModel extends ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
 
+  String? _passwordErrorMessage;
+
+  String? get passwordErrorMessage => _passwordErrorMessage;
+
   final AuthRepository _repo = AuthRepository(); // DI later
 
   void setLoading(bool v) {
@@ -33,8 +37,18 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _setPasswordError(String? msg) {
+    _passwordErrorMessage = msg;
+    notifyListeners();
+  }
+
   void clearError() {
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  void clearPasswordError() {
+    _passwordErrorMessage = null;
     notifyListeners();
   }
 
@@ -42,9 +56,10 @@ class LoginViewModel extends ChangeNotifier {
     final email = emailController.text.trim();
     final password = passwordController.text;
     clearError();
+    clearPasswordError();
 
     if (email.isEmpty || password.isEmpty) {
-      _setError('Please fill all fields');
+      _setError('Something went wrong');
       return false;
     }
 
@@ -61,11 +76,15 @@ class LoginViewModel extends ChangeNotifier {
         log("Login Success: $token");
         return true;
       } else {
-        _setError(result.error ?? "Login failed");
+        if (result.statusCode == 400) {
+          _setPasswordError(result.error);
+        } else {
+          _setError('Something went wrong');
+        }
         return false;
       }
     } catch (e) {
-      _setError(e.toString());
+      _setError('Something went wrong');
       return false;
     } finally {
       setLoading(false);
@@ -82,7 +101,7 @@ class LoginViewModel extends ChangeNotifier {
       final user = userCredential.user;
 
       if (user == null) {
-        _setError('Google Sign-In failed: user is null');
+        _setError('Something went wrong');
         return false;
       }
 
@@ -100,14 +119,15 @@ class LoginViewModel extends ChangeNotifier {
         log('Google Login Successful → Token saved');
         return true;
       } else {
-        _setError(result.error ?? 'Backend Login failed');
+        if (result.statusCode == 400) {
+          _setError(result.error);
+        } else {
+          _setError('Something went wrong');
+        }
         return false;
       }
-    } on FirebaseAuthException catch (e) {
-      _setError("Firebase Auth Error: ${e.message}");
-      return false;
     } catch (e) {
-      _setError("Login Error: ${e.toString()}");
+      _setError('Something went wrong');
       return false;
     } finally {
       setLoading(false);
@@ -126,7 +146,7 @@ class LoginViewModel extends ChangeNotifier {
       final user = userCred.user;
 
       if (user == null) {
-        _setError('Apple Sign-In failed: Firebase user is null');
+        _setError('Something went wrong');
         return false;
       }
 
@@ -158,11 +178,15 @@ class LoginViewModel extends ChangeNotifier {
         log('Apple Login Successful → Token saved locally');
         return true;
       } else {
-        _setError(result.error ?? 'Backend login failed');
+        if (result.statusCode == 400) {
+          _setError(result.error);
+        } else {
+          _setError('Something went wrong');
+        }
         return false;
       }
     } catch (e) {
-      _setError("Apple Login Error: ${e.toString()}");
+      _setError("Something went wrong");
       return false;
     } finally {
       setLoading(false);

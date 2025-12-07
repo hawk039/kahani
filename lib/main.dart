@@ -59,6 +59,9 @@ class MyApp extends StatelessWidget {
       title: 'Kahani',
       theme: AppTheme.darkTheme,
       home: isLoggedIn ? const StoriesPage() : const SignUpView(),
+      routes: {
+        LoginScreen.routeName: (context) => const LoginScreen(),
+      },
     );
   }
 }

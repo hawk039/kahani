@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kahani_app/presentation%20/auth/password_reset/password_reset_confirmation_screen.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/email_field.dart';
 import 'package:provider/provider.dart';
 import '../../../core/utils/assets.dart';
@@ -80,13 +81,11 @@ class ForgotPasswordScreen extends StatelessWidget {
                   onPressed: () async {
                     final ok = await vm.sendResetEmail();
                     if (ok) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Reset link sent!",
-                            style: TextStyle(color: AppTheme.textLight),
-                          ),
-                          backgroundColor: AppTheme.primary,
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const PasswordResetConfirmationScreen(),
                         ),
                       );
                     }
@@ -109,10 +108,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    ),
+                    onTap: () => Navigator.of(context).pop(),
                     child: Text(
                       "Log In",
                       style: TextStyle(

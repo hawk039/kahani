@@ -32,6 +32,19 @@ class _SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<SignUpViewModel>();
 
+    // Listen for non-password errors and show a SnackBar
+    if (vm.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vm.errorMessage!, style: const TextStyle(color: AppTheme.textLight)),
+            backgroundColor: AppTheme.secondary,
+          ),
+        );
+        vm.clearError(); // Clear the error after showing it
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.primary,
       // adjust if you use dark by default
@@ -85,7 +98,7 @@ class _SignUpScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   PasswordField(
                     controller: vm.passwordController,
-                    errorText: vm.errorMessage,
+                    errorText: vm.passwordErrorMessage,
                   ),
                   const SizedBox(height: 50),
                   // Sign up / loading
@@ -172,10 +185,7 @@ class _SignUpScreen extends StatelessWidget {
                   AuthRedirectText(
                     leadingText: "Already have an account?",
                     actionText: "Log In",
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    ),
+                    onTap: () => Navigator.pushReplacementNamed(context, LoginScreen.routeName),
                   ),
                 ],
               ),

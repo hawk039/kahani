@@ -15,6 +15,7 @@ import '../../common _widgets/auth_redirect_text.dart';
 import '../../stories/stories.dart';
 
 class LoginScreen extends StatelessWidget {
+  static const routeName = '/login';
   const LoginScreen({super.key});
 
   @override
@@ -22,10 +23,23 @@ class LoginScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final vm = context.watch<LoginViewModel>();
 
+    // Listen for non-password errors and show a SnackBar
+    if (vm.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vm.errorMessage!, style: const TextStyle(color: AppTheme.textLight)),
+            backgroundColor: AppTheme.secondary,
+          ),
+        );
+        vm.clearError(); // Clear the error after showing it
+      });
+    }
+
     return Scaffold(
       backgroundColor: isDark
           ? const Color(0xFF101522)
-          : const Color(0xFFF6F6F8),
+          : AppTheme.primary,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -75,8 +89,9 @@ class LoginScreen extends StatelessWidget {
 
               PasswordField(
                 controller: vm.passwordController,
+                errorText: vm.passwordErrorMessage,
                 onForgotPassword: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => ForgotPasswordScreen()),
                   );
@@ -162,7 +177,7 @@ class LoginScreen extends StatelessWidget {
               AuthRedirectText(
                 leadingText: "Don't have an account?",
                 actionText: "Sign Up",
-                onTap: () => Navigator.push(
+                onTap: () => Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const SignUpView()),
                 ),
