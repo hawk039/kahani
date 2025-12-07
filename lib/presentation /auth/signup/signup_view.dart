@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../core/utils/theme.dart';
 import '../../../core/utils/assets.dart';
 import '../../common _widgets/auth_redirect_text.dart';
-import '../../common _widgets/signup_button.dart';
+import '../../common _widgets/buttons.dart';
 import '../../common _widgets/social_button.dart';
 import '../login/login_view.dart';
 import 'signup_view_model.dart';
@@ -32,8 +32,21 @@ class _SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<SignUpViewModel>();
 
+    // Listen for non-password errors and show a SnackBar
+    if (vm.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vm.errorMessage!, style: const TextStyle(color: AppTheme.textLight)),
+            backgroundColor: AppTheme.secondary,
+          ),
+        );
+        vm.clearError(); // Clear the error after showing it
+      });
+    }
+
     return Scaffold(
-      backgroundColor: AppTheme.surfaceDark,
+      backgroundColor: AppTheme.primary,
       // adjust if you use dark by default
       body: SafeArea(
         child: Center(
@@ -68,7 +81,6 @@ class _SignUpScreen extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 6),
                   Text(
                     'Create Account.',
                     style: AppTheme.input.copyWith(
@@ -86,7 +98,7 @@ class _SignUpScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   PasswordField(
                     controller: vm.passwordController,
-                    errorText: vm.errorMessage,
+                    errorText: vm.passwordErrorMessage,
                   ),
                   const SizedBox(height: 50),
                   // Sign up / loading
@@ -173,10 +185,7 @@ class _SignUpScreen extends StatelessWidget {
                   AuthRedirectText(
                     leadingText: "Already have an account?",
                     actionText: "Log In",
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    ),
+                    onTap: () => Navigator.pushReplacementNamed(context, LoginScreen.routeName),
                   ),
                 ],
               ),

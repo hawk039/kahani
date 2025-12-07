@@ -11,8 +11,8 @@ class FilterChipWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 5),
+      margin: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
         color: AppTheme.borderDarker,
         borderRadius: BorderRadius.circular(12),

@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kahani_app/core/utils/theme.dart';
 import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
+import 'package:kahani_app/presentation%20/auth/password_reset/forget_password.dart';
 import 'package:kahani_app/presentation%20/auth/signup/signup_view.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/email_field.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/password_field.dart';
-import 'package:kahani_app/presentation%20/common%20_widgets/signup_button.dart';
+import 'package:kahani_app/presentation%20/common%20_widgets/buttons.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/social_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/utils/assets.dart';
-import '../../../core/utils/theme.dart';
 import '../../common _widgets/auth_redirect_text.dart';
 import '../../stories/stories.dart';
-import '../signup/signup_view_model.dart';
 
 class LoginScreen extends StatelessWidget {
+  static const routeName = '/login';
   const LoginScreen({super.key});
 
   @override
@@ -22,23 +23,46 @@ class LoginScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final vm = context.watch<LoginViewModel>();
 
+    // Listen for non-password errors and show a SnackBar
+    if (vm.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vm.errorMessage!, style: const TextStyle(color: AppTheme.textLight)),
+            backgroundColor: AppTheme.secondary,
+          ),
+        );
+        vm.clearError(); // Clear the error after showing it
+      });
+    }
+
     return Scaffold(
       backgroundColor: isDark
           ? const Color(0xFF101522)
-          : const Color(0xFFF6F6F8),
+          : AppTheme.primary,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              /// 🔹 Title Section
-              SvgPicture.asset(
-                AppAssets.signUpIllustration,
-                height: 48,
-                width: 48,
-                color: Colors.white,
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.secondary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(14),
+                  child: SvgPicture.asset(
+                    AppAssets.signUpIllustration,
+                    height: 32,
+                    width: 32,
+                    color: Colors.white,
+                  ),
+                ),
               ),
+
               const SizedBox(height: 12),
               Text(
                 "Welcome Back!",
@@ -49,7 +73,6 @@ class LoginScreen extends StatelessWidget {
                   color: isDark ? Colors.white : Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
               Text(
                 "Log in to continue your journey.",
                 textAlign: TextAlign.center,
@@ -61,17 +84,30 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 32),
 
-              /// 🔹 Reused Inputs
               EmailField(controller: vm.emailController),
               const SizedBox(height: 16),
-              PasswordField(controller: vm.passwordController),
+
+              PasswordField(
+                controller: vm.passwordController,
+                errorText: vm.passwordErrorMessage,
+                onForgotPassword: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ForgotPasswordScreen()),
+                  );
+                },
+              ),
 
               const SizedBox(height: 24),
 
-              /// 🔹 Reuse Primary CTA Button
               SignupButton(
-                onPressed: () {
-                  // TODO: Connect backend
+                onPressed: () async {
+                  final loggedIn = await vm.onLogin();
+                  if (loggedIn) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const StoriesPage()),
+                    );
+                  }
                 },
               ),
 
@@ -81,7 +117,7 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   Expanded(child: Divider(color: Colors.grey.withOpacity(.4))),
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
                     child: Text("or continue with"),
                   ),
                   Expanded(child: Divider(color: Colors.grey.withOpacity(.4))),
@@ -90,7 +126,6 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              /// 🔹 Reused Auth Buttons
               Row(
                 children: [
                   Expanded(
@@ -102,8 +137,8 @@ class LoginScreen extends StatelessWidget {
                       ),
                       label: 'Google',
                       onPressed: () async {
-                        final isAuthenticated = await vm.onGoogleLogin();
-                        if (isAuthenticated) {
+                        final ok = await vm.onGoogleLogin();
+                        if (ok) {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                               builder: (_) => const StoriesPage(),
@@ -123,11 +158,12 @@ class LoginScreen extends StatelessWidget {
                       ),
                       label: 'Apple',
                       onPressed: () async {
-                        final isAuthenticated = await vm.onAppleLogin();
-                        if (isAuthenticated) {
-                          // Navigate to Stories screen and remove previous routes
+                        final ok = await vm.onAppleLogin();
+                        if (ok) {
                           Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (_) => StoriesPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const StoriesPage(),
+                            ),
                           );
                         }
                       },
@@ -138,13 +174,12 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 32),
 
-              /// 🔹 Sign Up Navigation
               AuthRedirectText(
                 leadingText: "Don't have an account?",
                 actionText: "Sign Up",
-                onTap: () => Navigator.push(
+                onTap: () => Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => SignUpView()),
+                  MaterialPageRoute(builder: (_) => const SignUpView()),
                 ),
               ),
             ],

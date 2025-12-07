@@ -39,14 +39,14 @@ class HorizontalImagePicker extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemCount: sampleImages.length + 1,
-            // +1 for upload card
+            itemCount: sampleImages.length + 1, // +1 for upload card
             itemBuilder: (context, index) {
               if (index == 0) {
                 // Upload Button Card
                 return GestureDetector(
                   onTap: onUploadTap,
-                  child: Container(
+                  child:
+                  Container(
                     width: 100,
                     height: 140,
                     alignment: Alignment.center,

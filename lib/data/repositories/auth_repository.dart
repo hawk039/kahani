@@ -12,17 +12,22 @@ class AuthRepository {
   }) async {
     try {
       final response = await _dio.post(
-        "/auth/register",
+        "/auth/signup",
         data: {"email": email, "password": password},
       );
 
-      return SignUpResult(ok: true, token: response.data["access_token"]);
+      return SignUpResult(
+        ok: true,
+        token: response.data["access_token"],
+        statusCode: response.statusCode,
+      );
     } on DioException catch (e) {
       final msg =
           e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
-      return SignUpResult(ok: false, error: msg);
+      final statusCode = e.response?.statusCode;
+      return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
       return SignUpResult(ok: false, error: e.toString());
     }
@@ -39,13 +44,18 @@ class AuthRepository {
         data: {"email": email, "password": password},
       );
 
-      return SignUpResult(ok: true, token: response.data["access_token"]);
+      return SignUpResult(
+        ok: true,
+        token: response.data["access_token"],
+        statusCode: response.statusCode,
+      );
     } on DioException catch (e) {
       final msg =
           e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
-      return SignUpResult(ok: false, error: msg);
+      final statusCode = e.response?.statusCode;
+      return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
       return SignUpResult(ok: false, error: e.toString());
     }
@@ -59,17 +69,22 @@ class AuthRepository {
   }) async {
     try {
       final response = await _dio.post(
-        "/auth/google-signup",
+        "/auth/google-auth",
         data: {"uid": uid, "email": email, "token": token},
       );
 
-      return SignUpResult(ok: true, token: response.data["access_token"]);
+      return SignUpResult(
+        ok: true,
+        token: response.data["access_token"],
+        statusCode: response.statusCode,
+      );
     } on DioException catch (e) {
       final msg =
           e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
-      return SignUpResult(ok: false, error: msg);
+      final statusCode = e.response?.statusCode;
+      return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
       return SignUpResult(ok: false, error: e.toString());
     }
@@ -87,13 +102,18 @@ class AuthRepository {
         data: {"uid": uid, "token": token, "email": email},
       );
 
-      return SignUpResult(ok: true, token: response.data["access_token"]);
+      return SignUpResult(
+        ok: true,
+        token: response.data["access_token"],
+        statusCode: response.statusCode,
+      );
     } on DioException catch (e) {
       final msg =
           e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
-      return SignUpResult(ok: false, error: msg);
+      final statusCode = e.response?.statusCode;
+      return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
       return SignUpResult(ok: false, error: e.toString());
     }
@@ -111,13 +131,48 @@ class AuthRepository {
         data: {"uid": uid, "email": email, "token": token},
       );
 
-      return SignUpResult(ok: true, token: response.data["access_token"]);
+      return SignUpResult(
+        ok: true,
+        token: response.data["access_token"],
+        statusCode: response.statusCode,
+      );
     } on DioException catch (e) {
       final msg =
           e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
-      return SignUpResult(ok: false, error: msg);
+      final statusCode = e.response?.statusCode;
+      return SignUpResult(ok: false, error: msg, statusCode: statusCode);
+    } catch (e) {
+      return SignUpResult(ok: false, error: e.toString());
+    }
+  }
+
+  /// 🔹 Forgot Password
+  Future<SignUpResult> resetPassword({
+    required String email,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "/auth/fpassword",
+        data: {"email": email, "new_password": newPassword},
+      );
+
+      return SignUpResult(
+        ok: true,
+        token:
+            response.data["access_token"] ??
+            "", // optional if backend returns token
+        statusCode: response.statusCode,
+      );
+    } on DioException catch (e) {
+      final msg =
+          e.response?.data["detail"] ??
+          e.response?.data["message"] ??
+          "Something went wrong";
+      final statusCode = e.response?.statusCode;
+      return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
       return SignUpResult(ok: false, error: e.toString());
     }
@@ -135,13 +190,18 @@ class AuthRepository {
         data: {"uid": uid, "token": token, "email": email},
       );
 
-      return SignUpResult(ok: true, token: response.data["access_token"]);
+      return SignUpResult(
+        ok: true,
+        token: response.data["access_token"],
+        statusCode: response.statusCode,
+      );
     } on DioException catch (e) {
       final msg =
           e.response?.data["detail"] ??
           e.response?.data["message"] ??
           "Something went wrong";
-      return SignUpResult(ok: false, error: msg);
+      final statusCode = e.response?.statusCode;
+      return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
       return SignUpResult(ok: false, error: e.toString());
     }
