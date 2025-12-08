@@ -1,28 +1,28 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../data/repositories/home_repository.dart';
 
 class HomeProvider extends ChangeNotifier {
+  // --- Repository ---
+  final HomeRepository _repo = HomeRepository();
+
   // --- Private fields ---
   String? _selectedGenre;
   String? _selectedTone;
+  String? _selectedLanguage; // Added language
   Uint8List? _selectedImage;
-  String? _selectedSampleUrl; // For sample image selection
+  String? _selectedSampleUrl;
 
-  List<String> sampleImages = [
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuD7afjcCSbBjugowwaJI0sLc5bQn949EWnM_MGlFZEBK3u0Ko0biBcNQby8Mr5h9ggePBKejl3eAyYkZhRvo2Ibqe_dmvFz2pbY9F4OPjCutwDetEbpaGHuBR5MXJYIlPTQsZ3ENDfcwzaxSE2IbkhQG0y6e_20nu6nrLztA-VTkGx6X6w9mMpNvA5LuoLeJVxL_WMXTX7bPyugw_l6CCXGZ0H90eTGqVDNduSjKjMIQFXUYAJ_h82u29iypSojtcLrQbLa2VH7UyK8",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuB3QVsizFDEMiYfRlqNZ89SEE9JEQygM3mS5_Dv2cN6QRlchcsYf3w90y-hCrWdDfwOCE8xv5lwUjgTCZ8Cf49ssxkHNgsOQ2RXDZJlJxW5fX6-FwljslA1Xy1MogHXv3Zo0_fzU86bWIMVRmis5rsN92-25SsoCGIzBgVjEYo_4gX7Rm5RyEbpnPcNw5KvKi3BjR26mmibgub_ExDfzzgif-uVWx5zztFrAs8ypLZHfP6IYosDseSJqt7BOedq2L1J6YAkMelfYOmr",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuD7afjcCSbBjugowwaJI0sLc5bQn949EWnM_MGlFZEBK3u0Ko0biBcNQby8Mr5h9ggePBKejl3eAyYkZhRvo2Ibqe_dmvFz2pbY9F4OPjCutwDetEbpaGHuBR5MXJYIlPTQsZ3ENDfcwzaxSE2IbkhQG0y6e_20nu6nrLztA-VTkGx6X6w9mMpNvA5LuoLeJVxL_WMXTX7bPyugw_l6CCXGZ0H90eTGqVDNduSjKjMIQFXUYAJ_h82u29iypSojtcLrQbLa2VH7UyK8",
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuB3QVsizFDEMiYfRlqNZ89SEE9JEQygM3mS5_Dv2cN6QRlchcsYf3w90y-hCrWdDfwOCE8xv5lwUjgTCZ8Cf49ssxkHNgsOQ2RXDZJlJxW5fX6-FwljslA1Xy1MogHXv3Zo0_fzU86bWIMVRmis5rsN92-25SsoCGIzBgVjEYo_4gX7Rm5RyEbpnPcNw5KvKi3BjR26mmibgub_ExDfzzgif-uVWx5zztFrAs8ypLZHfP6IYosDseSJqt7BOedq2L1J6YAkMelfYOmr",
-  ];
+  List<String> sampleImages = [];
+  int _currentPage = 1;
+  bool _isFetching = false;
 
   // --- Getters ---
   String? get selectedGenre => _selectedGenre;
-
   String? get selectedTone => _selectedTone;
-
+  String? get selectedLanguage => _selectedLanguage; // Added language getter
   Uint8List? get selectedImage => _selectedImage;
-
   String? get selectedSampleUrl => _selectedSampleUrl;
 
   // --- Setters / Update functions ---
@@ -36,15 +36,20 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSelectedLanguage(String? language) {
+    _selectedLanguage = language;
+    notifyListeners();
+  }
+
   void setSelectedImage(Uint8List? imageBytes) {
     _selectedImage = imageBytes;
-    _selectedSampleUrl = null; // Reset sample if uploading new image
+    _selectedSampleUrl = null;
     notifyListeners();
   }
 
   void setSelectedSample(String? sampleUrl) {
     _selectedSampleUrl = sampleUrl;
-    _selectedImage = null; // Reset uploaded image if sample selected
+    _selectedImage = null;
     notifyListeners();
   }
 
@@ -55,21 +60,38 @@ class HomeProvider extends ChangeNotifier {
     );
     if (imageFile != null) {
       _selectedImage = await imageFile.readAsBytes();
-      _selectedSampleUrl = null; // reset sample selection
+      _selectedSampleUrl = null;
       notifyListeners();
     }
   }
 
   void selectSample(String url) {
     _selectedSampleUrl = url;
-    _selectedImage = null; // reset uploaded image
+    _selectedImage = null;
     notifyListeners();
   }
 
-  // --- Optional: Reset all selections ---
+  // --- Data Fetching ---
+  Future<void> fetchSampleImages() async {
+    if (_isFetching) return;
+
+    _isFetching = true;
+
+    final newImageUrls = await _repo.fetchSampleImages(_currentPage);
+    if (newImageUrls.isNotEmpty) {
+      sampleImages.addAll(newImageUrls);
+      _currentPage++;
+      notifyListeners();
+    }
+
+    _isFetching = false;
+  }
+
+  // --- Reset ---
   void resetSelections() {
     _selectedGenre = null;
     _selectedTone = null;
+    _selectedLanguage = null; // Reset language
     _selectedImage = null;
     _selectedSampleUrl = null;
     notifyListeners();

@@ -26,8 +26,21 @@ class CreateStoryDialogContent extends StatelessWidget {
     "Dramatic",
   ];
 
+  // Added a list of common languages
+  final List<String> languages = const [
+    "English",
+    "Spanish",
+    "French",
+    "German",
+    "Hindi",
+    "Japanese",
+    "Mandarin",
+    "Russian",
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final homeProvider = context.watch<HomeProvider>();
     final theme = Theme.of(context);
 
     return Padding(
@@ -42,11 +55,15 @@ class CreateStoryDialogContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     HorizontalImagePicker(
-                      sampleImages: context.read<HomeProvider>().sampleImages,
+                      sampleImages: homeProvider.sampleImages,
+                      selectedImageBytes: homeProvider.selectedImage,
+                      selectedSampleUrl: homeProvider.selectedSampleUrl,
                       onUploadTap: () =>
                           context.read<HomeProvider>().pickImage(),
                       onSampleSelected: (url) =>
                           context.read<HomeProvider>().selectSample(url),
+                      onScrolledToEnd: () =>
+                          context.read<HomeProvider>().fetchSampleImages(),
                     ),
                     const SizedBox(height: 20),
 
@@ -61,6 +78,15 @@ class CreateStoryDialogContent extends StatelessWidget {
                     Text("Choose a Tone", style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
                     SelectableChipList(options: tones, chipType: ChipType.tone),
+                    const SizedBox(height: 20),
+
+                    // Added Language Section
+                    Text("Select Language", style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    SelectableChipList(
+                      options: languages,
+                      chipType: ChipType.language,
+                    ),
 
                     const Spacer(),
                     const SizedBox(height: 20),
