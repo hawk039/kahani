@@ -1,14 +1,30 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:kahani_app/presentation%20/home/home_view_model.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/filter_chip_widget.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/story_card.dart';
-
+import 'package:provider/provider.dart';
 import '../../core/utils/theme.dart';
 import '../home/home.dart';
 
-class StoriesPage extends StatelessWidget {
+class StoriesPage extends StatefulWidget {
   const StoriesPage({super.key});
+
+  @override
+  State<StoriesPage> createState() => _StoriesPageState();
+}
+
+class _StoriesPageState extends State<StoriesPage> {
+  @override
+  void initState() {
+    super.initState();
+    // As soon as this page loads, trigger the initial image fetch.
+    // We use `listen: false` because we don't need to rebuild this widget
+    // when the images arrive; we just need to trigger the fetch.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<HomeProvider>(context, listen: false).fetchSampleImages();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,20 +63,14 @@ class StoriesPage extends StatelessWidget {
                   ),
                   filled: true,
                   fillColor: AppTheme.borderDarker,
-
-                  // 🔹 Rounded corners always
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none, // No border normally
                   ),
-
-                  // 🔹 No visible border when not focused
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-
-                  // 🔹 Blue border only when focused
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
@@ -68,7 +78,6 @@ class StoriesPage extends StatelessWidget {
                       width: 2,
                     ),
                   ),
-
                   hintStyle: TextStyle(color: AppTheme.textMutedDark),
                 ),
               ),
@@ -124,10 +133,10 @@ class StoriesPage extends StatelessWidget {
         onPressed: () {
           showDialog(
             context: context,
-            barrierColor: AppTheme.primary.withOpacity(0.9), // dim behind dialog
+            barrierColor: AppTheme.primary.withOpacity(0.9),
             builder: (context) => Dialog(
               insetPadding: const EdgeInsets.all(16),
-              backgroundColor: Colors.transparent, // make dialog itself transparent
+              backgroundColor: Colors.transparent,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: BackdropFilter(

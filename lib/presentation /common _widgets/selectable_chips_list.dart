@@ -4,7 +4,7 @@ import 'package:kahani_app/core/utils/theme.dart';
 
 import '../home/home_view_model.dart';
 
-enum ChipType { genre, tone }
+enum ChipType { genre, tone, language } // Added language
 
 class SelectableChipList extends StatelessWidget {
   final List<String> options;
@@ -25,11 +25,15 @@ class SelectableChipList extends StatelessWidget {
     switch (chipType) {
       case ChipType.genre:
         selectedValue = provider.selectedGenre;
-        updateFunction = provider.setSelectedGenre; // updated
+        updateFunction = provider.setSelectedGenre;
         break;
       case ChipType.tone:
         selectedValue = provider.selectedTone;
-        updateFunction = provider.setSelectedTone; // updated
+        updateFunction = provider.setSelectedTone;
+        break;
+      case ChipType.language: // Added case for language
+        selectedValue = provider.selectedLanguage;
+        updateFunction = provider.setSelectedLanguage;
         break;
     }
 
