@@ -16,20 +16,20 @@ class StoriesPage extends StatefulWidget {
 }
 
 class _StoriesPageState extends State<StoriesPage> {
+  // Set to keep track of which story IDs are expanded
+  final Set<int> _expandedStoryIds = {};
+
   @override
   void initState() {
     super.initState();
-    // Fetch initial data when the page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final homeProvider = context.read<HomeProvider>();
-      // homeProvider.fetchStories(); // This endpoint does not exist yet
-      homeProvider.fetchSampleImages();  // Pre-load the sample images for the dialog
+      homeProvider.fetchSampleImages();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch the provider to rebuild when stories change
     final homeProvider = context.watch<HomeProvider>();
 
     return Scaffold(
@@ -37,7 +37,6 @@ class _StoriesPageState extends State<StoriesPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top App Bar, Search, and Filters remain the same...
             Container(
               color: AppTheme.storyCard,
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -90,8 +89,6 @@ class _StoriesPageState extends State<StoriesPage> {
               ),
             ),
             const SizedBox(height: 8),
-
-            // --- DYNAMIC STORY LIST ---
             Expanded(
               child: homeProvider.stories.isEmpty
                   ? const Center(
@@ -108,19 +105,43 @@ class _StoriesPageState extends State<StoriesPage> {
                       itemCount: homeProvider.stories.length,
                       itemBuilder: (context, index) {
                         final story = homeProvider.stories[index];
+                        final isExpanded = _expandedStoryIds.contains(story.id);
+
+                        final firstParagraph = story.story.split('\n\n').first;
+                        final canBeTruncated = story.story.length > firstParagraph.length;
+                        final description = isExpanded ? story.story : (canBeTruncated ? '$firstParagraph...' : story.story);
+
                         final subtitle =
                             '${story.metadata.genre} | Created: ${story.createdAt}';
                         final wordCount = '${story.story.split(' ').length} Words';
                         final imageUrl = 'https://kahani-backend-wuj0.onrender.com/images/${story.metadata.filename}';
+                        final imageBytes = (index == 0) ? homeProvider.selectedImage : null;
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12.0),
-                          child: StoryCard(
-                            title: "A tale of ${story.metadata.genre}",
-                            subtitle: subtitle,
-                            description: story.story,
-                            words: wordCount,
-                            imageUrl: imageUrl,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (isExpanded) {
+                                  _expandedStoryIds.remove(story.id);
+                                } else {
+                                  _expandedStoryIds.add(story.id);
+                                }
+                              });
+                            },
+                            child: AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              alignment: Alignment.topCenter,
+                              child: StoryCard(
+                                title: "A tale of ${story.metadata.genre}",
+                                subtitle: subtitle,
+                                description: description,
+                                words: wordCount,
+                                imageUrl: imageUrl,
+                                imageBytes: imageBytes,
+                              ),
+                            ),
                           ),
                         );
                       },

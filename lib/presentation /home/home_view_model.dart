@@ -9,7 +9,7 @@ import '../../../data/repositories/home_repository.dart';
 
 class HomeProvider extends ChangeNotifier {
   final HomeRepository _repo = HomeRepository();
-  final Dio _dio = Dio(); // For downloading sample images
+  final Dio _dio = Dio();
 
   // --- State ---
   String? _selectedGenre;
@@ -18,7 +18,7 @@ class HomeProvider extends ChangeNotifier {
   Uint8List? _selectedImage;
   String? _selectedSampleUrl;
   List<String> sampleImages = [];
-  List<Story> stories = []; // To hold the list of stories
+  List<Story> stories = [];
   int _currentPage = 1;
   bool _isFetchingImages = false;
   bool _isGeneratingStory = false;
@@ -65,9 +65,10 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+  // REVERTED: Now only sets the URL, does not download.
   void selectSample(String url) {
     _selectedSampleUrl = url;
-    _selectedImage = null;
+    _selectedImage = null; // Clear the uploaded image
     notifyListeners();
   }
 
@@ -90,11 +91,9 @@ class HomeProvider extends ChangeNotifier {
     _isFetchingImages = false;
   }
 
-  // This method is removed as the endpoint does not exist.
-  // Future<void> fetchStories() async { ... }
-
-  Future<Story?> generateStory() async {
-    if (_selectedGenre == null || _selectedTone == null || _selectedLanguage == null || (_selectedImage == null && _selectedSampleUrl == null)) {
+  // This method now requires the image bytes directly.
+  Future<Story?> generateStory({required Uint8List imageBytes}) async {
+    if (_selectedGenre == null || _selectedTone == null || _selectedLanguage == null) {
       _generationError = "Please select all options before generating.";
       notifyListeners();
       return null;
@@ -104,32 +103,15 @@ class HomeProvider extends ChangeNotifier {
     _generationError = null;
     notifyListeners();
 
-    Uint8List? imageBytes = _selectedImage;
-
-    if (_selectedSampleUrl != null) {
-      try {
-        final response = await _dio.get<Uint8List>(
-          _selectedSampleUrl!,
-          options: Options(responseType: ResponseType.bytes),
-        );
-        imageBytes = response.data;
-      } catch (e) {
-        _generationError = "Failed to download sample image.";
-        _isGeneratingStory = false;
-        notifyListeners();
-        return null;
-      }
-    }
-
     final result = await _repo.generateStory(
       genre: _selectedGenre!,
       tone: _selectedTone!,
       language: _selectedLanguage!,
-      imageBytes: imageBytes!,
+      imageBytes: imageBytes,
     );
 
     if (result.ok) {
-      stories.insert(0, result.story!); // Add story to the list
+      stories.insert(0, result.story!); 
       _isGeneratingStory = false;
       notifyListeners();
       return result.story;
