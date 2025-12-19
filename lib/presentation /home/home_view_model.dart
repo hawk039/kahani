@@ -19,7 +19,7 @@ class HomeProvider extends ChangeNotifier {
   String? _selectedSampleUrl;
   List<String> sampleImages = [];
   List<Story> stories = [];
-  Set<int> expandedStoryIds = {}; // For tracking expanded cards
+  // Set<int> expandedStoryIds = {}; // REMOVED - No longer needed
   int _currentPage = 1;
   bool _isFetchingImages = false;
   bool _isGeneratingStory = false;
@@ -76,14 +76,8 @@ class HomeProvider extends ChangeNotifier {
     _generationError = null;
   }
 
-  void toggleStoryExpanded(int storyId) {
-    if (expandedStoryIds.contains(storyId)) {
-      expandedStoryIds.remove(storyId);
-    } else {
-      expandedStoryIds.add(storyId);
-    }
-    notifyListeners();
-  }
+  // REMOVED - No longer needed
+  // void toggleStoryExpanded(int storyId) { ... }
 
   // --- API Calls ---
   Future<void> fetchSampleImages() async {
@@ -137,7 +131,7 @@ class HomeProvider extends ChangeNotifier {
     _selectedLanguage = null;
     _selectedImage = null;
     _selectedSampleUrl = null;
-    expandedStoryIds.clear();
+    // expandedStoryIds.clear(); // REMOVED
     notifyListeners();
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kahani_app/data/models/story.dart';
 import 'package:kahani_app/presentation%20/home/home_view_model.dart';
+import 'package:kahani_app/presentation%20/stories/story_detail_page.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/filter_chip_widget.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/story_card.dart';
 import 'package:provider/provider.dart';
@@ -122,11 +123,8 @@ class StoriesPage extends StatelessWidget {
                       itemCount: homeProvider.stories.length,
                       itemBuilder: (context, index) {
                         final story = homeProvider.stories[index];
-                        final isExpanded = homeProvider.expandedStoryIds.contains(story.id);
-
                         final firstParagraph = story.story.split('\n\n').first;
-                        final canBeTruncated = story.story.length > firstParagraph.length;
-                        final description = isExpanded ? story.story : (canBeTruncated ? '$firstParagraph...' : story.story);
+                        final description = '$firstParagraph...';
 
                         final subtitle = '${story.metadata.genre} | Created: ${story.createdAt}';
                         final wordCount = '${story.story.split(' ').length} Words';
@@ -136,19 +134,18 @@ class StoriesPage extends StatelessWidget {
                         return Padding(
                           padding: EdgeInsets.only(bottom: 12.h),
                           child: GestureDetector(
-                            onTap: () => context.read<HomeProvider>().toggleStoryExpanded(story.id),
-                            child: AnimatedSize(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              alignment: Alignment.topCenter,
-                              child: StoryCard(
-                                title: "A tale of ${story.metadata.genre}",
-                                subtitle: subtitle,
-                                description: description,
-                                words: wordCount,
-                                imageUrl: imageUrl,
-                                imageBytes: imageBytes,
-                              ),
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => StoryDetailPage(story: story),
+                              ));
+                            },
+                            child: StoryCard(
+                              title: "A tale of ${story.metadata.genre}",
+                              subtitle: subtitle,
+                              description: description,
+                              words: wordCount,
+                              imageUrl: imageUrl,
+                              imageBytes: imageBytes,
                             ),
                           ),
                         );
@@ -173,7 +170,6 @@ class StoriesPage extends StatelessWidget {
               context: context,
               builder: (context) => Dialog(
                 insetPadding: EdgeInsets.all(16.w),
-                // By not setting a color, we allow it to use the theme's default dialog color
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.r),
                 ),
