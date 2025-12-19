@@ -19,6 +19,7 @@ class HomeProvider extends ChangeNotifier {
   String? _selectedSampleUrl;
   List<String> sampleImages = [];
   List<Story> stories = [];
+  Set<int> expandedStoryIds = {}; // For tracking expanded cards
   int _currentPage = 1;
   bool _isFetchingImages = false;
   bool _isGeneratingStory = false;
@@ -65,15 +66,23 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  // REVERTED: Now only sets the URL, does not download.
   void selectSample(String url) {
     _selectedSampleUrl = url;
-    _selectedImage = null; // Clear the uploaded image
+    _selectedImage = null;
     notifyListeners();
   }
 
   void clearGenerationError() {
     _generationError = null;
+  }
+
+  void toggleStoryExpanded(int storyId) {
+    if (expandedStoryIds.contains(storyId)) {
+      expandedStoryIds.remove(storyId);
+    } else {
+      expandedStoryIds.add(storyId);
+    }
+    notifyListeners();
   }
 
   // --- API Calls ---
@@ -91,7 +100,6 @@ class HomeProvider extends ChangeNotifier {
     _isFetchingImages = false;
   }
 
-  // This method now requires the image bytes directly.
   Future<Story?> generateStory({required Uint8List imageBytes}) async {
     if (_selectedGenre == null || _selectedTone == null || _selectedLanguage == null) {
       _generationError = "Please select all options before generating.";
@@ -129,6 +137,7 @@ class HomeProvider extends ChangeNotifier {
     _selectedLanguage = null;
     _selectedImage = null;
     _selectedSampleUrl = null;
+    expandedStoryIds.clear();
     notifyListeners();
   }
 }
