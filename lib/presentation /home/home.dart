@@ -26,7 +26,6 @@ class CreateStoryDialogContent extends StatelessWidget {
     "Dramatic",
   ];
 
-  // Added a list of common languages
   final List<String> languages = const [
     "English",
     "Spanish",
@@ -42,6 +41,19 @@ class CreateStoryDialogContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeProvider = context.watch<HomeProvider>();
     final theme = Theme.of(context);
+
+    // Listen for generation errors and show a snackbar
+    if (homeProvider.generationError != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(homeProvider.generationError!),
+            backgroundColor: AppTheme.secondary,
+          ),
+        );
+        homeProvider.clearGenerationError(); // Clear the error after showing
+      });
+    }
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -80,7 +92,6 @@ class CreateStoryDialogContent extends StatelessWidget {
                     SelectableChipList(options: tones, chipType: ChipType.tone),
                     const SizedBox(height: 20),
 
-                    // Added Language Section
                     Text("Select Language", style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
                     SelectableChipList(
@@ -93,13 +104,23 @@ class CreateStoryDialogContent extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          // TODO: generate story
-                        },
-                        icon: Icon(
-                          Icons.auto_awesome,
-                          color: AppTheme.textLight,
-                        ),
+                        onPressed: homeProvider.isGeneratingStory
+                            ? null // Disable button while loading
+                            : () async {
+                                final story = await context
+                                    .read<HomeProvider>()
+                                    .generateStory();
+                                if (story != null) {
+                                  // TODO: Navigate to a new screen to show the story
+                                  print(story);
+                                }
+                              },
+                        icon: homeProvider.isGeneratingStory
+                            ? const CupertinoActivityIndicator(color: Colors.white)
+                            : const Icon(
+                                Icons.auto_awesome,
+                                color: AppTheme.textLight,
+                              ),
                         label: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 14),
                           child: Text(

@@ -1,31 +1,39 @@
+import 'dart:developer';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../data/models/generate_story_result.dart';
+import '../../../data/models/story.dart';
 import '../../../data/repositories/home_repository.dart';
 
 class HomeProvider extends ChangeNotifier {
-  // --- Repository ---
   final HomeRepository _repo = HomeRepository();
+  final Dio _dio = Dio(); // For downloading sample images
 
-  // --- Private fields ---
+  // --- State ---
   String? _selectedGenre;
   String? _selectedTone;
-  String? _selectedLanguage; // Added language
+  String? _selectedLanguage;
   Uint8List? _selectedImage;
   String? _selectedSampleUrl;
-
   List<String> sampleImages = [];
+  List<Story> stories = []; // To hold the list of stories
   int _currentPage = 1;
-  bool _isFetching = false;
+  bool _isFetchingImages = false;
+  bool _isGeneratingStory = false;
+  String? _generationError;
 
   // --- Getters ---
   String? get selectedGenre => _selectedGenre;
   String? get selectedTone => _selectedTone;
-  String? get selectedLanguage => _selectedLanguage; // Added language getter
+  String? get selectedLanguage => _selectedLanguage;
   Uint8List? get selectedImage => _selectedImage;
   String? get selectedSampleUrl => _selectedSampleUrl;
+  bool get isGeneratingStory => _isGeneratingStory;
+  String? get generationError => _generationError;
 
-  // --- Setters / Update functions ---
+  // --- UI Actions ---
   void setSelectedGenre(String? genre) {
     _selectedGenre = genre;
     notifyListeners();
@@ -47,17 +55,9 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedSample(String? sampleUrl) {
-    _selectedSampleUrl = sampleUrl;
-    _selectedImage = null;
-    notifyListeners();
-  }
-
   Future<void> pickImage() async {
     final picker = ImagePicker();
-    final XFile? imageFile = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+    final imageFile = await picker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
       _selectedImage = await imageFile.readAsBytes();
       _selectedSampleUrl = null;
@@ -71,11 +71,14 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Data Fetching ---
-  Future<void> fetchSampleImages() async {
-    if (_isFetching) return;
+  void clearGenerationError() {
+    _generationError = null;
+  }
 
-    _isFetching = true;
+  // --- API Calls ---
+  Future<void> fetchSampleImages() async {
+    if (_isFetchingImages) return;
+    _isFetchingImages = true;
 
     final newImageUrls = await _repo.fetchSampleImages(_currentPage);
     if (newImageUrls.isNotEmpty) {
@@ -84,14 +87,64 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
 
-    _isFetching = false;
+    _isFetchingImages = false;
   }
 
-  // --- Reset ---
+  // This method is removed as the endpoint does not exist.
+  // Future<void> fetchStories() async { ... }
+
+  Future<Story?> generateStory() async {
+    if (_selectedGenre == null || _selectedTone == null || _selectedLanguage == null || (_selectedImage == null && _selectedSampleUrl == null)) {
+      _generationError = "Please select all options before generating.";
+      notifyListeners();
+      return null;
+    }
+
+    _isGeneratingStory = true;
+    _generationError = null;
+    notifyListeners();
+
+    Uint8List? imageBytes = _selectedImage;
+
+    if (_selectedSampleUrl != null) {
+      try {
+        final response = await _dio.get<Uint8List>(
+          _selectedSampleUrl!,
+          options: Options(responseType: ResponseType.bytes),
+        );
+        imageBytes = response.data;
+      } catch (e) {
+        _generationError = "Failed to download sample image.";
+        _isGeneratingStory = false;
+        notifyListeners();
+        return null;
+      }
+    }
+
+    final result = await _repo.generateStory(
+      genre: _selectedGenre!,
+      tone: _selectedTone!,
+      language: _selectedLanguage!,
+      imageBytes: imageBytes!,
+    );
+
+    if (result.ok) {
+      stories.insert(0, result.story!); // Add story to the list
+      _isGeneratingStory = false;
+      notifyListeners();
+      return result.story;
+    } else {
+      _generationError = result.error;
+      _isGeneratingStory = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
   void resetSelections() {
     _selectedGenre = null;
     _selectedTone = null;
-    _selectedLanguage = null; // Reset language
+    _selectedLanguage = null;
     _selectedImage = null;
     _selectedSampleUrl = null;
     notifyListeners();
