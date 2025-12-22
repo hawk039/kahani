@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kahani_app/core/utils/theme.dart';
 
 class HorizontalImagePicker extends StatefulWidget {
@@ -49,7 +50,6 @@ class _HorizontalImagePickerState extends State<HorizontalImagePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Determine if the upload button should be highlighted
     final isUploadSelected = widget.selectedImageBytes != null;
 
     return Column(
@@ -59,59 +59,56 @@ class _HorizontalImagePickerState extends State<HorizontalImagePicker> {
           "Choose an Image",
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
+            fontSize: 18.sp,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         SizedBox(
-          height: 140,
+          height: 140.h,
           child: ListView.separated(
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            separatorBuilder: (_, __) => SizedBox(width: 12.w),
             itemCount: widget.sampleImages.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
-                // Upload Button Card
                 return GestureDetector(
                   onTap: widget.onUploadTap,
                   child: Container(
-                    width: 100,
-                    height: 140,
+                    width: 100.w,
+                    height: 140.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14.r),
                       border: Border.all(
-                        // Highlight if an image is uploaded
                         color: isUploadSelected ? AppTheme.secondary : AppTheme.borderDarker,
                         width: 2,
                       ),
                       color: AppTheme.borderDarker,
                     ),
-                    child: const Column(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.upload_file_outlined, size: 32),
-                        SizedBox(height: 6),
-                        Text("Upload", style: TextStyle(fontSize: 12)),
+                        Icon(Icons.upload_file_outlined, size: 32.r),
+                        SizedBox(height: 6.h),
+                        Text("Upload", style: TextStyle(fontSize: 12.sp)),
                       ],
                     ),
                   ),
                 );
               }
 
-              // Sample Image Cards
               final imgUrl = widget.sampleImages[index - 1];
-              // Highlight if this specific sample URL is selected
               final isSelected = imgUrl == widget.selectedSampleUrl;
 
               return GestureDetector(
                 onTap: () => widget.onSampleSelected(imgUrl),
                 child: Container(
-                  width: 100,
-                  height: 140,
+                  width: 100.w,
+                  height: 140.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                     border: Border.all(
                       color: isSelected ? AppTheme.secondary : Colors.transparent,
                       width: 2,

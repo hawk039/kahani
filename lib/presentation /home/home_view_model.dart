@@ -2,14 +2,16 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/models/generate_story_result.dart';
 import '../../../data/models/story.dart';
 import '../../../data/repositories/home_repository.dart';
 
 class HomeProvider extends ChangeNotifier {
-  final HomeRepository _repo = HomeRepository();
-  final Dio _dio = Dio();
+  // Dependencies are now final fields
+  final HomeRepository _repo;
+  final Box<Story> _storiesBox;
 
   // --- State ---
   String? _selectedGenre;
@@ -24,6 +26,14 @@ class HomeProvider extends ChangeNotifier {
   bool _isGeneratingStory = false;
   String? _generationError;
 
+  // MODIFIED CONSTRUCTOR: Allows injecting dependencies for tests.
+  // Your app will still use the default (real) instances.
+  HomeProvider({HomeRepository? repo, Box<Story>? storiesBox})
+      : _repo = repo ?? HomeRepository(),
+        _storiesBox = storiesBox ?? Hive.box<Story>('storiesBox') {
+    loadStories();
+  }
+
   // --- Getters ---
   String? get selectedGenre => _selectedGenre;
   String? get selectedTone => _selectedTone;
@@ -32,6 +42,17 @@ class HomeProvider extends ChangeNotifier {
   String? get selectedSampleUrl => _selectedSampleUrl;
   bool get isGeneratingStory => _isGeneratingStory;
   String? get generationError => _generationError;
+
+  // --- New Hive Methods ---
+  void loadStories() {
+    stories = _storiesBox.values.toList().cast<Story>();
+    stories.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    notifyListeners();
+  }
+
+  Future<void> _saveStory(Story story) async {
+    await _storiesBox.put(story.id, story);
+  }
 
   // --- UI Actions ---
   void setSelectedGenre(String? genre) {
@@ -65,10 +86,9 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  // REVERTED: Now only sets the URL, does not download.
   void selectSample(String url) {
     _selectedSampleUrl = url;
-    _selectedImage = null; // Clear the uploaded image
+    _selectedImage = null;
     notifyListeners();
   }
 
@@ -91,7 +111,6 @@ class HomeProvider extends ChangeNotifier {
     _isFetchingImages = false;
   }
 
-  // This method now requires the image bytes directly.
   Future<Story?> generateStory({required Uint8List imageBytes}) async {
     if (_selectedGenre == null || _selectedTone == null || _selectedLanguage == null) {
       _generationError = "Please select all options before generating.";
@@ -111,10 +130,12 @@ class HomeProvider extends ChangeNotifier {
     );
 
     if (result.ok) {
-      stories.insert(0, result.story!); 
+      final newStory = result.story!;
+      stories.insert(0, newStory);
+      await _saveStory(newStory); // Save the new story to Hive
       _isGeneratingStory = false;
       notifyListeners();
-      return result.story;
+      return newStory;
     } else {
       _generationError = result.error;
       _isGeneratingStory = false;

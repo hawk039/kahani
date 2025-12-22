@@ -83,6 +83,8 @@ class HomeRepository {
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
+            // Set the correct content type for file uploads
+            'Content-Type': 'multipart/form-data',
           },
           // Increase timeout for this specific request
           receiveTimeout: const Duration(seconds: 60),
