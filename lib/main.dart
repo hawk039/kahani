@@ -1,11 +1,12 @@
+import 'dart:developer'; // 1. Import developer log
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 
-// 1. Import your models
 import 'package:kahani_app/data/models/story.dart';
 import 'package:kahani_app/data/models/story_metadata.dart';
+import 'package:kahani_app/core/config/config.dart';
 
 import 'package:kahani_app/presentation /auth/login/login_view.dart';
 import 'package:kahani_app/presentation /auth/login/login_view_model.dart';
@@ -18,18 +19,23 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize the environment
+  Environment().initialize();
+
+  // 2. Add the log statement
+  log("Running with base URL: ${Environment().config.baseUrl}");
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await Hive.initFlutter();
 
-  // 2. Register your adapters
   Hive.registerAdapter(StoryAdapter());
   Hive.registerAdapter(StoryMetadataAdapter());
 
-  // 3. Open your boxes
   await Hive.openBox('authBox');
-  await Hive.openBox<Story>('storiesBox'); // Open the new box for stories
+  await Hive.openBox<Story>('storiesBox');
 
   runApp(const MyApp());
 }

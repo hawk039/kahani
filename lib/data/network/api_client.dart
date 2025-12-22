@@ -1,15 +1,19 @@
 import 'package:dio/dio.dart';
-import 'logging_interceptor.dart';
+import 'package:kahani_app/core/config/config.dart'; // 1. Import config
 
 class ApiClient {
-  static final Dio dio = Dio(
+  ApiClient._();
+
+  static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: "https://kahani-backend-wuj0.onrender.com",
+      baseUrl: Environment().config.baseUrl, // 2. Use the dynamic URL
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     ),
-  )..interceptors.add(LoggingInterceptor());
+  );
+
+  static Dio get dio => _dio;
 }
