@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:kahani_app/presentation%20/auth/login/login_view.dart';
-import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
-import 'package:kahani_app/presentation%20/home/home_view_model.dart';
-import 'package:kahani_app/presentation%20/stories/stories.dart';
+
+// 1. Import your models
+import 'package:kahani_app/data/models/story.dart';
+import 'package:kahani_app/data/models/story_metadata.dart';
+
+import 'package:kahani_app/presentation /auth/login/login_view.dart';
+import 'package:kahani_app/presentation /auth/login/login_view_model.dart';
+import 'package:kahani_app/presentation /home/home_view_model.dart';
+import 'package:kahani_app/presentation /stories/stories.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/utils/theme.dart';
@@ -17,7 +22,14 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await Hive.initFlutter();
+
+  // 2. Register your adapters
+  Hive.registerAdapter(StoryAdapter());
+  Hive.registerAdapter(StoryMetadataAdapter());
+
+  // 3. Open your boxes
   await Hive.openBox('authBox');
+  await Hive.openBox<Story>('storiesBox'); // Open the new box for stories
 
   runApp(const MyApp());
 }
@@ -40,8 +52,8 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Kahani App',
-            themeMode: ThemeMode.dark, // 1. Force dark mode
-            darkTheme: ThemeData( // 2. Define the dark theme
+            themeMode: ThemeMode.dark,
+            darkTheme: ThemeData(
               brightness: Brightness.dark,
               scaffoldBackgroundColor: AppTheme.primary,
               primaryColor: AppTheme.primary,
@@ -49,7 +61,7 @@ class MyApp extends StatelessWidget {
                 primary: AppTheme.primary,
                 secondary: AppTheme.secondary,
               ),
-              dialogBackgroundColor: AppTheme.primary, // Set a default dialog background
+              dialogBackgroundColor: AppTheme.primary,
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
             home: child,

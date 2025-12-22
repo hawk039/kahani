@@ -37,7 +37,10 @@ class StoriesPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Center(
-                      child: Text("My Stories", style: AppTheme.heading.copyWith(fontSize: 24.sp)),
+                      child: Text(
+                        "My Stories",
+                        style: AppTheme.heading.copyWith(fontSize: 24.sp),
+                      ),
                     ),
                   ),
                 ],
@@ -47,13 +50,23 @@ class StoriesPage extends StatelessWidget {
               Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 8.h,
+                    ),
                     child: TextField(
-                      style: TextStyle(color: AppTheme.textLight, fontSize: 16.sp),
+                      style: TextStyle(
+                        color: AppTheme.textLight,
+                        fontSize: 16.sp,
+                      ),
                       cursorColor: AppTheme.textLight,
                       decoration: InputDecoration(
                         hintText: "Search your stories...",
-                        prefixIcon: Icon(Icons.search, color: AppTheme.textMutedDark, size: 24.r),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: AppTheme.textMutedDark,
+                          size: 24.r,
+                        ),
                         filled: true,
                         fillColor: AppTheme.borderDarker,
                         border: OutlineInputBorder(
@@ -66,9 +79,15 @@ class StoriesPage extends StatelessWidget {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.r),
-                          borderSide: const BorderSide(color: AppTheme.secondary, width: 2),
+                          borderSide: const BorderSide(
+                            color: AppTheme.secondary,
+                            width: 2,
+                          ),
                         ),
-                        hintStyle: TextStyle(color: AppTheme.textMutedDark, fontSize: 16.sp),
+                        hintStyle: TextStyle(
+                          color: AppTheme.textMutedDark,
+                          fontSize: 16.sp,
+                        ),
                       ),
                     ),
                   ),
@@ -104,13 +123,19 @@ class StoriesPage extends StatelessWidget {
                             AppAssets.feather,
                             width: 64.w,
                             height: 64.h,
-                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(
+                              Colors.white,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                         SizedBox(height: 24.h),
                         Text(
                           "No stories yet. Begin your journey!",
-                          style: TextStyle(color: AppTheme.textMutedDark, fontSize: 18.sp),
+                          style: TextStyle(
+                            color: AppTheme.textMutedDark,
+                            fontSize: 18.sp,
+                          ),
                         ),
                         const Spacer(),
                       ],
@@ -126,18 +151,26 @@ class StoriesPage extends StatelessWidget {
                         final firstParagraph = story.story.split('\n\n').first;
                         final description = '$firstParagraph...';
 
-                        final subtitle = '${story.metadata.genre} | Created: ${story.createdAt}';
-                        final wordCount = '${story.story.split(' ').length} Words';
-                        final imageUrl = 'https://kahani-backend-wuj0.onrender.com/images/${story.metadata.filename}';
-                        final imageBytes = (index == 0) ? homeProvider.selectedImage : null;
+                        final subtitle =
+                            '${story.metadata.genre} | Created: ${story.createdAt}';
+                        final wordCount =
+                            '${story.story.split(' ').length} Words';
+                        final imageUrl =
+                            'https://kahani-backend-wuj0.onrender.com/images/${story.metadata.filename}';
+                        final imageBytes = (index == 0)
+                            ? homeProvider.selectedImage
+                            : null;
 
                         return Padding(
                           padding: EdgeInsets.only(bottom: 12.h),
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => StoryDetailPage(story: story),
-                              ));
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      StoryDetailPage(story: story),
+                                ),
+                              );
                             },
                             child: StoryCard(
                               title: "A tale of ${story.metadata.genre}",
@@ -158,10 +191,7 @@ class StoriesPage extends StatelessWidget {
       floatingActionButton: Theme(
         data: Theme.of(context).copyWith(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
-            sizeConstraints: BoxConstraints.tightFor(
-              width: 90.r,
-              height: 90.r,
-            ),
+            sizeConstraints: BoxConstraints.tightFor(width: 90.r, height: 90.r),
           ),
         ),
         child: FloatingActionButton(
@@ -183,7 +213,11 @@ class StoriesPage extends StatelessWidget {
           },
           backgroundColor: AppTheme.secondary,
           shape: const CircleBorder(),
-          child: Icon(Icons.auto_awesome, color: AppTheme.textLight, size: 45.r),
+          child: Icon(
+            Icons.auto_awesome,
+            color: AppTheme.textLight,
+            size: 45.r,
+          ),
         ),
       ),
     );
