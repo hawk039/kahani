@@ -22,21 +22,17 @@ class HomeRepository {
     try {
       final response = await _unsplashDio.get(
         'https://api.unsplash.com/search/photos',
-        queryParameters: {
-          'query': 'scenery',
-          'page': page,
-          'per_page': 10,
-        },
+        queryParameters: {'query': 'scenery', 'page': page, 'per_page': 10},
         options: Options(
-          headers: {
-            'Authorization': 'Client-ID ${ApiKeys.unsplashAccessKey}',
-          },
+          headers: {'Authorization': 'Client-ID ${ApiKeys.unsplashAccessKey}'},
         ),
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> photos = response.data['results'];
-        return photos.map((photo) => photo['urls']['regular'] as String).toList();
+        return photos
+            .map((photo) => photo['urls']['regular'] as String)
+            .toList();
       } else {
         log('Failed to load images: ${response.statusCode}');
         return [];
@@ -64,7 +60,11 @@ class HomeRepository {
       final String? token = box.get('token');
 
       if (token == null || token.isEmpty) {
-        return GenerateStoryResult(ok: false, error: 'Not authenticated', statusCode: 401);
+        return GenerateStoryResult(
+          ok: false,
+          error: 'Not authenticated',
+          statusCode: 401,
+        );
       }
 
       final formData = FormData.fromMap({
@@ -105,7 +105,10 @@ class HomeRepository {
       );
     } catch (e) {
       log(e.toString());
-      return GenerateStoryResult(ok: false, error: 'An unexpected error occurred.');
+      return GenerateStoryResult(
+        ok: false,
+        error: 'An unexpected error occurred.',
+      );
     }
   }
 }

@@ -16,6 +16,7 @@ import '../../stories/stories.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
+
   const LoginScreen({super.key});
 
   @override
@@ -28,7 +29,10 @@ class LoginScreen extends StatelessWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(vm.errorMessage!, style: const TextStyle(color: AppTheme.textLight)),
+            content: Text(
+              vm.errorMessage!,
+              style: const TextStyle(color: AppTheme.textLight),
+            ),
             backgroundColor: AppTheme.secondary,
           ),
         );
@@ -37,9 +41,7 @@ class LoginScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF101522)
-          : AppTheme.primary,
+      backgroundColor: isDark ? const Color(0xFF101522) : AppTheme.primary,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
