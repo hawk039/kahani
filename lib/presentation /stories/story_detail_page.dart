@@ -59,7 +59,7 @@ class StoryDetailPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "A tale of ${viewModel.story.metadata.genre}",
+                                  viewModel.title, // <-- CORRECTED: Use the real title from the ViewModel
                                   style: AppTheme.heading.copyWith(fontSize: 24.sp),
                                 ),
                                 SizedBox(height: 12.h),

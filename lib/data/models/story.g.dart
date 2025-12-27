@@ -22,13 +22,14 @@ class StoryAdapter extends TypeAdapter<Story> {
       story: fields[2] as String,
       metadata: fields[3] as StoryMetadata,
       user: fields[4] as String,
+      title: fields[5] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Story obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class StoryAdapter extends TypeAdapter<Story> {
       ..writeByte(3)
       ..write(obj.metadata)
       ..writeByte(4)
-      ..write(obj.user);
+      ..write(obj.user)
+      ..writeByte(5)
+      ..write(obj.title);
   }
 
   @override

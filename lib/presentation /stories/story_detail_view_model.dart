@@ -6,7 +6,9 @@ class StoryDetailViewModel extends ChangeNotifier {
 
   StoryDetailViewModel(this.story);
 
-  // Reverted to the clean URL
+  // Use the real title
+  String get title => story.title;
+
   String get imageUrl => story.metadata.filename;
 
   // TODO: Add logic for Edit, Regenerate, Share, and Save actions here.
