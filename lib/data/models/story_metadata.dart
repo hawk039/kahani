@@ -1,19 +1,20 @@
 import 'package:hive/hive.dart';
 
-part 'story_metadata.g.dart'; // Part directive for generated code
+part 'story_metadata.g.dart';
 
-@HiveType(typeId: 1) // Unique typeId for this model
+@HiveType(typeId: 1)
 class StoryMetadata {
-  @HiveField(0) // Index 0
+  @HiveField(0)
   final String genre;
 
-  @HiveField(1) // Index 1
+  @HiveField(1)
   final String tone;
 
-  @HiveField(2) // Index 2
+  @HiveField(2)
   final String language;
 
-  @HiveField(3) // Index 3
+  // This field will now hold the full URL
+  @HiveField(3)
   final String filename;
 
   StoryMetadata({
@@ -28,7 +29,8 @@ class StoryMetadata {
       genre: json['genre'] ?? 'Unknown',
       tone: json['tone'] ?? 'Unknown',
       language: json['language'] ?? 'Unknown',
-      filename: json['filename'] ?? '',
+      // MODIFIED: Assign the 'image_url' from JSON to our 'filename' field
+      filename: json['image_url'] ?? '', 
     );
   }
 }

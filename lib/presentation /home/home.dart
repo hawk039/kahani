@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kahani_app/presentation%20/home/widget/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -29,13 +30,10 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
     "English", "Spanish", "French", "German", "Hindi", "Japanese", "Mandarin", "Russian",
   ];
 
-  // This method now handles the pre-generation logic.
   Future<void> _generateStory() async {
-    // Use context.read inside a method, as it's a one-time action.
     final homeProvider = context.read<HomeProvider>();
     Uint8List? imageBytes = homeProvider.selectedImage;
 
-    // If a sample URL is selected, download the image data just-in-time.
     if (homeProvider.selectedSampleUrl != null && imageBytes == null) {
       try {
         final response = await Dio().get<Uint8List>(
@@ -60,10 +58,13 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
       return;
     }
 
-    // Now call the provider with the definitive image bytes.
+    // --- BUG FIX ---
+    // Set the image bytes in the provider right before generation.
+    // This ensures the UI has access to the image data for the new story card.
+    homeProvider.setSelectedImage(imageBytes);
+
     final story = await homeProvider.generateStory(imageBytes: imageBytes);
 
-    // If the story was generated successfully, close the dialog.
     if (story != null && mounted) {
       Navigator.of(context).pop();
     }
@@ -87,7 +88,7 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -104,41 +105,41 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
                     onSampleSelected: homeProvider.selectSample,
                     onScrolledToEnd: homeProvider.fetchSampleImages,
                   ),
-                  const SizedBox(height: 20),
-                  Text("Select Genre", style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 20.h),
+                  Text("Select Genre", style: theme.textTheme.titleMedium?.copyWith(fontSize: 18.sp)),
+                  SizedBox(height: 8.h),
                   SelectableChipList(options: genres, chipType: ChipType.genre),
-                  const SizedBox(height: 20),
-                  Text("Choose a Tone", style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 20.h),
+                  Text("Choose a Tone", style: theme.textTheme.titleMedium?.copyWith(fontSize: 18.sp)),
+                  SizedBox(height: 8.h),
                   SelectableChipList(options: tones, chipType: ChipType.tone),
-                  const SizedBox(height: 20),
-                  Text("Select Language", style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 20.h),
+                  Text("Select Language", style: theme.textTheme.titleMedium?.copyWith(fontSize: 18.sp)),
+                  SizedBox(height: 8.h),
                   SelectableChipList(options: languages, chipType: ChipType.language),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: homeProvider.isGeneratingStory ? null : _generateStory,
               icon: homeProvider.isGeneratingStory
                   ? const CupertinoActivityIndicator(color: Colors.white)
-                  : const Icon(Icons.auto_awesome, color: AppTheme.textLight),
-              label: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
+                  : Icon(Icons.auto_awesome, color: AppTheme.textLight, size: 24.r),
+              label: Padding(
+                padding: EdgeInsets.symmetric(vertical: 14.h),
                 child: Text(
                   "Generate Story",
-                  style: TextStyle(color: AppTheme.textLight),
+                  style: TextStyle(color: AppTheme.textLight, fontSize: 16.sp),
                 ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.secondary,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
               ),
             ),

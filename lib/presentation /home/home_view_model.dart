@@ -8,8 +8,13 @@ import '../../../data/models/generate_story_result.dart';
 import '../../../data/models/story.dart';
 import '../../../data/repositories/home_repository.dart';
 
+// New: An enum to define the available sort orders.
+enum SortBy {
+  newest,
+  oldest,
+}
+
 class HomeProvider extends ChangeNotifier {
-  // Dependencies are now final fields
   final HomeRepository _repo;
   final Box<Story> _storiesBox;
 
@@ -26,8 +31,10 @@ class HomeProvider extends ChangeNotifier {
   bool _isGeneratingStory = false;
   String? _generationError;
 
-  // MODIFIED CONSTRUCTOR: Allows injecting dependencies for tests.
-  // Your app will still use the default (real) instances.
+  // --- NEW: Filter State ---
+  SortBy _sortBy = SortBy.newest;
+  String? _filterGenre;
+
   HomeProvider({HomeRepository? repo, Box<Story>? storiesBox})
       : _repo = repo ?? HomeRepository(),
         _storiesBox = storiesBox ?? Hive.box<Story>('storiesBox') {
@@ -43,7 +50,29 @@ class HomeProvider extends ChangeNotifier {
   bool get isGeneratingStory => _isGeneratingStory;
   String? get generationError => _generationError;
 
-  // --- New Hive Methods ---
+  // NEW: Getter for the filtered and sorted list of stories.
+  List<Story> get filteredStories {
+    List<Story> filtered = List.from(stories);
+
+    if (_filterGenre != null) {
+      filtered = filtered.where((story) => story.metadata.genre == _filterGenre).toList();
+    }
+
+    switch (_sortBy) {
+      case SortBy.newest:
+        filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case SortBy.oldest:
+        filtered.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+        break;
+    }
+
+    return filtered;
+  }
+
+  String? get filterGenre => _filterGenre;
+  SortBy get sortBy => _sortBy;
+
   void loadStories() {
     stories = _storiesBox.values.toList().cast<Story>();
     stories.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -76,6 +105,21 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- NEW: Filter Methods ---
+  void setSortBy(SortBy sortBy) {
+    _sortBy = sortBy;
+    notifyListeners();
+  }
+
+  void setFilterGenre(String? genre) {
+    if (_filterGenre == genre) {
+      _filterGenre = null;
+    } else {
+      _filterGenre = genre;
+    }
+    notifyListeners();
+  }
+
   Future<void> pickImage() async {
     final picker = ImagePicker();
     final imageFile = await picker.pickImage(source: ImageSource.gallery);
@@ -96,7 +140,6 @@ class HomeProvider extends ChangeNotifier {
     _generationError = null;
   }
 
-  // --- API Calls ---
   Future<void> fetchSampleImages() async {
     if (_isFetchingImages) return;
     _isFetchingImages = true;
@@ -132,7 +175,7 @@ class HomeProvider extends ChangeNotifier {
     if (result.ok) {
       final newStory = result.story!;
       stories.insert(0, newStory);
-      await _saveStory(newStory); // Save the new story to Hive
+      await _saveStory(newStory);
       _isGeneratingStory = false;
       notifyListeners();
       return newStory;

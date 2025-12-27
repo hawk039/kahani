@@ -1,35 +1,23 @@
+import 'dart:developer';
 import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kahani_app/presentation%20/stories/widgets/story_card_view_model.dart';
 import '../../../core/utils/theme.dart';
 
 class StoryCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String description;
-  final String words;
-  final String imageUrl;
-  final Uint8List? imageBytes;
+  final StoryCardViewModel viewModel;
+  final Uint8List? imageBytes; // This is for the temporary local image
 
   const StoryCard({
     super.key,
-    required this.title,
-    required this.subtitle,
-    required this.description,
-    required this.words,
-    required this.imageUrl,
+    required this.viewModel,
     this.imageBytes,
   });
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider imageProvider;
-    if (imageBytes != null) {
-      imageProvider = MemoryImage(imageBytes!);
-    } else {
-      imageProvider = NetworkImage(imageUrl);
-    }
-
     return Card(
       color: AppTheme.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
@@ -38,32 +26,50 @@ class StoryCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-            child: Image(
-              image: imageProvider,
-              height: 160.h,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 160.h,
-                  color: AppTheme.borderDarker,
-                  alignment: Alignment.center,
-                  child: Icon(Icons.image_not_supported, color: AppTheme.textMutedDark, size: 48.r),
-                );
-              },
-            ),
+            child: imageBytes != null
+                ? Image.memory(
+                    imageBytes!,
+                    height: 160.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                : CachedNetworkImage(
+                    imageUrl: viewModel.imageUrl,
+                    height: 160.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: 160.h,
+                      color: AppTheme.borderDarker,
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(
+                        color: AppTheme.secondary,
+                        strokeWidth: 2.0,
+                      ),
+                    ),
+                    errorWidget: (context, url, error) {
+                      // --- LOGGING THE ERROR ---
+                      log("Image failed to load: $url, Error: $error");
+                      return Container(
+                        height: 160.h,
+                        color: AppTheme.borderDarker,
+                        alignment: Alignment.center,
+                        child: Icon(Icons.image_not_supported, color: AppTheme.textMutedDark, size: 48.r),
+                      );
+                    },
+                  ),
           ),
           Padding(
             padding: EdgeInsets.all(12.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(subtitle, style: AppTheme.inputStyle(context).copyWith(fontSize: 12.sp)),
-                Text(title, style: AppTheme.heading.copyWith(fontSize: 20.sp)),
+                Text(viewModel.subtitle, style: AppTheme.inputStyle(context).copyWith(fontSize: 12.sp)),
+                Text(viewModel.title, style: AppTheme.heading.copyWith(fontSize: 20.sp)),
                 SizedBox(height: 6.h),
-                Text(description, style: AppTheme.inputStyle(context).copyWith(fontSize: 14.sp)),
+                Text(viewModel.description, style: AppTheme.inputStyle(context).copyWith(fontSize: 14.sp)),
                 SizedBox(height: 6.h),
-                Text(words, style: AppTheme.inputStyle(context).copyWith(fontSize: 12.sp)),
+                Text(viewModel.wordCount, style: AppTheme.inputStyle(context).copyWith(fontSize: 12.sp)),
               ],
             ),
           ),
