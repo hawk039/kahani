@@ -53,7 +53,7 @@ class SignUpViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> onSignUp() async {
+  Future<bool> onSignUp() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
 
@@ -63,12 +63,12 @@ class SignUpViewModel extends ChangeNotifier {
     // --- Client-side validation ---
     if (email.isEmpty || password.isEmpty) {
       _setError('Something went wrong');
-      return;
+      return false;
     }
 
     if (password.length < 6) {
       _setPasswordError('Password must be at least 6 characters');
-      return;
+      return false;
     }
 
     setLoading(true);
@@ -77,15 +77,20 @@ class SignUpViewModel extends ChangeNotifier {
 
       if (result.ok) {
         log(result.token.toString());
+        var box = Hive.box('authBox');
+        await box.put('token', result.token);
+        return true;
       } else {
         if (result.statusCode == 400) {
           _setPasswordError(result.error);
         } else {
           _setError('Something went wrong');
         }
+        return false;
       }
     } catch (e) {
       _setError('Something went wrong');
+      return false;
     } finally {
       setLoading(false);
     }

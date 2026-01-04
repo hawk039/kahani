@@ -9,12 +9,13 @@ import 'package:kahani_app/data/models/story_metadata.dart';
 import 'package:kahani_app/core/config/config.dart';
 import 'package:kahani_app/data/network/api_client.dart'; // Import ApiClient
 
-import 'package:kahani_app/presentation /auth/login/login_view.dart';
-import 'package:kahani_app/presentation /auth/login/login_view_model.dart';
-import 'package:kahani_app/presentation /home/home_view_model.dart';
-import 'package:kahani_app/presentation /stories/stories.dart';
+import 'package:kahani_app/presentation%20/auth/login/login_view.dart';
+import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
+import 'package:kahani_app/presentation%20/home/home_view_model.dart';
+import 'package:kahani_app/presentation%20/stories/stories.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'core/app_routes.dart';
 import 'core/utils/theme.dart';
 import 'firebase_options.dart';
 
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
             home: child,
+            routes: AppRoutes.routes,
           );
         },
         child: const AuthWrapper(),

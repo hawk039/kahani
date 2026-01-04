@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/core/utils/theme.dart';
 import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
-import 'package:kahani_app/presentation%20/auth/password_reset/forget_password.dart';
-import 'package:kahani_app/presentation%20/auth/signup/signup_view.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/email_field.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/password_field.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/buttons.dart';
@@ -12,7 +11,6 @@ import 'package:provider/provider.dart';
 
 import '../../../core/utils/assets.dart';
 import '../../common _widgets/auth_redirect_text.dart';
-import '../../stories/stories.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/login';
@@ -93,10 +91,7 @@ class LoginScreen extends StatelessWidget {
                 controller: vm.passwordController,
                 errorText: vm.passwordErrorMessage,
                 onForgotPassword: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ForgotPasswordScreen()),
-                  );
+                  Navigator.pushNamed(context, AppRoutes.forgotPassword);
                 },
               ),
 
@@ -106,9 +101,7 @@ class LoginScreen extends StatelessWidget {
                 onPressed: () async {
                   final loggedIn = await vm.onLogin();
                   if (loggedIn) {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const StoriesPage()),
-                    );
+                    Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
                   }
                 },
               ),
@@ -141,11 +134,7 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () async {
                         final ok = await vm.onGoogleLogin();
                         if (ok) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const StoriesPage(),
-                            ),
-                          );
+                          Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
                         }
                       },
                     ),
@@ -162,11 +151,7 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () async {
                         final ok = await vm.onAppleLogin();
                         if (ok) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const StoriesPage(),
-                            ),
-                          );
+                          Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
                         }
                       },
                     ),
@@ -179,10 +164,7 @@ class LoginScreen extends StatelessWidget {
               AuthRedirectText(
                 leadingText: "Don't have an account?",
                 actionText: "Sign Up",
-                onTap: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SignUpView()),
-                ),
+                onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
               ),
             ],
           ),

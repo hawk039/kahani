@@ -21,7 +21,7 @@ class StoryAdapter extends TypeAdapter<Story> {
       createdAt: fields[1] as String,
       story: fields[2] as String,
       metadata: fields[3] as StoryMetadata,
-      user: fields[4] as String,
+      title: fields[4] as String,
     );
   }
 
@@ -38,7 +38,7 @@ class StoryAdapter extends TypeAdapter<Story> {
       ..writeByte(3)
       ..write(obj.metadata)
       ..writeByte(4)
-      ..write(obj.user);
+      ..write(obj.title);
   }
 
   @override

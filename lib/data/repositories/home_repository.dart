@@ -46,8 +46,39 @@ class HomeRepository {
     }
   }
 
-  // This method is removed as the endpoint does not exist.
-  // Future<List<Story>> fetchAllStories() async { ... }
+  Future<List<Story>> getMyStories({required int page, required int limit}) async {
+    try {
+      final box = Hive.box('authBox');
+      final String? token = box.get('token');
+
+      if (token == null || token.isEmpty) {
+        log('Authentication token not found.');
+        return [];
+      }
+
+      final response = await _kahaniDio.get(
+        '/generate-story/my-stories',
+        queryParameters: {'page': page, 'limit': limit},
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data["data"] is List) {
+        final List<dynamic> data = response.data["data"];
+        return data.map((json) => Story.fromJson(json)).toList();
+      } else {
+        log('Failed to load stories: ${response.statusCode}');
+        return [];
+      }
+    } on DioException catch (e) {
+      log('Error fetching stories: ${_getErrorMessage(e)}');
+      return [];
+    } catch (e) {
+      log('An unexpected error occurred: ${e.toString()}');
+      return [];
+    }
+  }
 
   Future<GenerateStoryResult> generateStory({
     required String genre,

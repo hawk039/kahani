@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/presentation%20/auth/password_reset/password_reset_confirmation_screen.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/email_field.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,8 @@ import '../login/login_view.dart';
 import 'forget_password_view_model.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
+  static const routeName = '/forgot-password';
+
   ForgotPasswordScreen({super.key});
 
   @override
@@ -81,12 +84,9 @@ class ForgotPasswordScreen extends StatelessWidget {
                   onPressed: () async {
                     final ok = await vm.sendResetEmail();
                     if (ok) {
-                      Navigator.push(
+                      Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const PasswordResetConfirmationScreen(),
-                        ),
+                        AppRoutes.passwordResetConfirmation,
                       );
                     }
                   },
