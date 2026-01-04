@@ -97,8 +97,8 @@ class _StoriesPageState extends State<StoriesPage> {
       data: Theme.of(context).copyWith(
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           sizeConstraints: BoxConstraints.tightFor(
-            width: 90.r,
-            height: 90.r,
+            width: 70.r,
+            height: 70.r,
           ),
         ),
       ),
