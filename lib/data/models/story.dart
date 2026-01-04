@@ -18,9 +18,6 @@ class Story {
   final StoryMetadata metadata;
 
   @HiveField(4)
-  final String user;
-
-  @HiveField(5) // New field
   final String title;
 
   Story({
@@ -28,8 +25,7 @@ class Story {
     required this.createdAt,
     required this.story,
     required this.metadata,
-    required this.user,
-    required this.title, // Added to constructor
+    required this.title,
   });
 
   factory Story.fromJson(Map<String, dynamic> json) {
@@ -38,8 +34,7 @@ class Story {
       createdAt: json['createdAt'],
       story: json['story'],
       metadata: StoryMetadata.fromJson(json['metadata']),
-      user: json['user'],
-      title: json['title'] ?? 'Untitled Story', // Added parsing for the new title
+      title: json['title'] ?? 'Untitled Story',
     );
   }
 
@@ -48,7 +43,6 @@ class Story {
     String? createdAt,
     String? story,
     StoryMetadata? metadata,
-    String? user,
     String? title,
   }) {
     return Story(
@@ -56,7 +50,6 @@ class Story {
       createdAt: createdAt ?? this.createdAt,
       story: story ?? this.story,
       metadata: metadata ?? this.metadata,
-      user: user ?? this.user,
       title: title ?? this.title,
     );
   }

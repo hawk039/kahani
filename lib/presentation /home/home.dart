@@ -77,13 +77,15 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
 
     if (homeProvider.generationError != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(homeProvider.generationError!),
-            backgroundColor: AppTheme.secondary,
-          ),
-        );
-        homeProvider.clearGenerationError();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(homeProvider.generationError!),
+              backgroundColor: AppTheme.secondary,
+            ),
+          );
+          homeProvider.clearGenerationError();
+        }
       });
     }
 
@@ -118,7 +120,7 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
                   SizedBox(height: 8.h),
                   SelectableChipList(options: languages, chipType: ChipType.language),
                 ],
-              ),
+              ), 
             ),
           ),
           SizedBox(height: 20.h),

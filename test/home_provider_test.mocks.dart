@@ -4,13 +4,14 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
-import 'dart:typed_data' as _i5;
+import 'dart:typed_data' as _i6;
 
-import 'package:hive/hive.dart' as _i6;
+import 'package:hive/hive.dart' as _i7;
 import 'package:kahani_app/data/models/generate_story_result.dart' as _i2;
+import 'package:kahani_app/data/models/story.dart' as _i5;
 import 'package:kahani_app/data/repositories/home_repository.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -54,11 +55,28 @@ class MockHomeRepository extends _i1.Mock implements _i3.HomeRepository {
       ) as _i4.Future<List<String>>);
 
   @override
+  _i4.Future<List<_i5.Story>> getMyStories({
+    required int? page,
+    required int? limit,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getMyStories,
+          [],
+          {
+            #page: page,
+            #limit: limit,
+          },
+        ),
+        returnValue: _i4.Future<List<_i5.Story>>.value(<_i5.Story>[]),
+      ) as _i4.Future<List<_i5.Story>>);
+
+  @override
   _i4.Future<_i2.GenerateStoryResult> generateStory({
     required String? genre,
     required String? tone,
     required String? language,
-    required _i5.Uint8List? imageBytes,
+    required _i6.Uint8List? imageBytes,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -91,7 +109,7 @@ class MockHomeRepository extends _i1.Mock implements _i3.HomeRepository {
 /// A class which mocks [Box].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBox<E> extends _i1.Mock implements _i6.Box<E> {
+class MockBox<E> extends _i1.Mock implements _i7.Box<E> {
   MockBox() {
     _i1.throwOnMissingStub(this);
   }
@@ -105,7 +123,7 @@ class MockBox<E> extends _i1.Mock implements _i6.Box<E> {
   @override
   String get name => (super.noSuchMethod(
         Invocation.getter(#name),
-        returnValue: _i7.dummyValue<String>(
+        returnValue: _i8.dummyValue<String>(
           this,
           Invocation.getter(#name),
         ),
@@ -186,14 +204,14 @@ class MockBox<E> extends _i1.Mock implements _i6.Box<E> {
       ));
 
   @override
-  _i4.Stream<_i6.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
+  _i4.Stream<_i7.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
         Invocation.method(
           #watch,
           [],
           {#key: key},
         ),
-        returnValue: _i4.Stream<_i6.BoxEvent>.empty(),
-      ) as _i4.Stream<_i6.BoxEvent>);
+        returnValue: _i4.Stream<_i7.BoxEvent>.empty(),
+      ) as _i4.Stream<_i7.BoxEvent>);
 
   @override
   bool containsKey(dynamic key) => (super.noSuchMethod(
