@@ -42,4 +42,22 @@ class Story {
       title: json['title'] ?? 'Untitled Story', // Added parsing for the new title
     );
   }
+
+  Story copyWith({
+    int? id,
+    String? createdAt,
+    String? story,
+    StoryMetadata? metadata,
+    String? user,
+    String? title,
+  }) {
+    return Story(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      story: story ?? this.story,
+      metadata: metadata ?? this.metadata,
+      user: user ?? this.user,
+      title: title ?? this.title,
+    );
+  }
 }

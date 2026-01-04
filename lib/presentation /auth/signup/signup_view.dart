@@ -1,5 +1,6 @@
 // lib/presentation/auth/signup/signup_view.dart
 import 'package:flutter/material.dart';
+import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/presentation%20/common%20_widgets/password_field.dart';
 import 'package:kahani_app/presentation%20/stories/stories.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ import '../../common _widgets/email_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SignUpView extends StatelessWidget {
+  static const routeName = '/signup';
   const SignUpView({super.key});
 
   @override
@@ -106,7 +108,14 @@ class _SignUpScreen extends StatelessWidget {
                       ? const CircularProgressIndicator(
                           color: AppTheme.secondary,
                         )
-                      : SignupButton(onPressed: vm.onSignUp),
+                      : SignupButton(
+                          onPressed: () async {
+                            final success = await vm.onSignUp();
+                            if (success) {
+                              Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
+                            }
+                          },
+                        ),
 
                   const SizedBox(height: 18),
 
@@ -147,11 +156,7 @@ class _SignUpScreen extends StatelessWidget {
                             final isAuthenticated = await vm.onGoogleSignUp();
                             if (isAuthenticated) {
                               // Navigate to Stories screen and remove previous routes
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (_) => StoriesPage(),
-                                ),
-                              );
+                              Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
                             }
                           },
                         ),
@@ -169,11 +174,7 @@ class _SignUpScreen extends StatelessWidget {
                             final isAuthenticated = await vm.onAppleSignUp();
                             if (isAuthenticated) {
                               // Navigate to Stories screen and remove previous routes
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder: (_) => StoriesPage(),
-                                ),
-                              );
+                              Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
                             }
                           },
                         ),
@@ -185,7 +186,7 @@ class _SignUpScreen extends StatelessWidget {
                   AuthRedirectText(
                     leadingText: "Already have an account?",
                     actionText: "Log In",
-                    onTap: () => Navigator.pushReplacementNamed(context, LoginScreen.routeName),
+                    onTap: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
                   ),
                 ],
               ),

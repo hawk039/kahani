@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'widgets/story_action_bar.dart';
 
 class StoryDetailPage extends StatelessWidget {
+  static const routeName = '/story-detail';
   final Story story;
 
   const StoryDetailPage({super.key, required this.story});
@@ -59,18 +60,33 @@ class StoryDetailPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  viewModel.title, // <-- CORRECTED: Use the real title from the ViewModel
+                                  viewModel.title,
                                   style: AppTheme.heading.copyWith(fontSize: 24.sp),
                                 ),
                                 SizedBox(height: 12.h),
-                                Text(
-                                  viewModel.story.story.replaceAll('\\n', '\n\n'),
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    color: AppTheme.textLight,
-                                    height: 1.5,
-                                  ),
-                                ),
+                                viewModel.isEditing
+                                    ? TextField(
+                                        controller: viewModel.storyTextController,
+                                        maxLines: null, // Allows for multiline input
+                                        cursorColor: Colors.white,
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: AppTheme.textLight,
+                                          height: 1.5,
+                                        ),
+                                        decoration: const InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: 'Your story here...',
+                                        ),
+                                      )
+                                    : Text(
+                                        viewModel.storyTextController.text.replaceAll('\\n', '\n\n'),
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          color: AppTheme.textLight,
+                                          height: 1.5,
+                                        ),
+                                      ),
                               ],
                             ),
                           ),
@@ -93,9 +109,7 @@ class StoryDetailPage extends StatelessWidget {
                             width: double.infinity,
                             height: 52.h,
                             child: ElevatedButton(
-                              onPressed: () {
-                                // TODO: Implement Save Story functionality via ViewModel
-                              },
+                              onPressed: viewModel.isEditing ? viewModel.saveStory : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.secondary,
                                 shape: RoundedRectangleBorder(
@@ -103,7 +117,7 @@ class StoryDetailPage extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                "Save Story",
+                                viewModel.isEditing ? "Save Story" : "Story Saved",
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.bold,

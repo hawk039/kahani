@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kahani_app/core/utils/theme.dart';
+import 'package:kahani_app/presentation%20/stories/story_detail_view_model.dart';
+import 'package:provider/provider.dart';
 
 class StoryActionBar extends StatelessWidget {
   const StoryActionBar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<StoryDetailViewModel>();
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
       child: Row(
@@ -14,11 +18,9 @@ class StoryActionBar extends StatelessWidget {
         children: [
           _buildActionItem(
             context,
-            icon: Icons.edit,
-            label: "Edit",
-            onTap: () {
-              // TODO: Implement Edit functionality
-            },
+            icon: viewModel.isEditing ? Icons.done : Icons.edit,
+            label: viewModel.isEditing ? "Done" : "Edit",
+            onTap: viewModel.toggleEditing,
           ),
           _buildActionItem(
             context,

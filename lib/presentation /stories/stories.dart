@@ -2,9 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/data/models/story.dart';
 import 'package:kahani_app/presentation%20/home/home_view_model.dart';
-import 'package:kahani_app/presentation%20/stories/story_detail_page.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/filter_chip_widget.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/story_card.dart';
 import 'package:kahani_app/presentation%20/stories/widgets/story_card_view_model.dart';
@@ -14,6 +14,7 @@ import '../../core/utils/theme.dart';
 import '../home/home.dart';
 
 class StoriesPage extends StatelessWidget {
+  static const routeName = '/stories';
   const StoriesPage({super.key});
 
   @override
@@ -146,9 +147,11 @@ class StoriesPage extends StatelessWidget {
                           padding: EdgeInsets.only(bottom: 12.h),
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => StoryDetailPage(story: story),
-                              ));
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.storyDetail,
+                                arguments: story,
+                              );
                             },
                             child: StoryCard(
                               viewModel: cardViewModel,

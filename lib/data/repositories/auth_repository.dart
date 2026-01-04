@@ -22,10 +22,11 @@ class AuthRepository {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      final msg =
-          e.response?.data["detail"] ??
-          e.response?.data["message"] ??
-          "Something went wrong";
+      final msg = e.response?.data is Map
+          ? e.response?.data["detail"] ??
+              e.response?.data["message"] ??
+              "Something went wrong"
+          : "Something went wrong";
       final statusCode = e.response?.statusCode;
       return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
@@ -50,10 +51,11 @@ class AuthRepository {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      final msg =
-          e.response?.data["detail"] ??
-          e.response?.data["message"] ??
-          "Something went wrong";
+      final msg = e.response?.data is Map
+          ? e.response?.data["detail"] ??
+              e.response?.data["message"] ??
+              "Something went wrong"
+          : "Something went wrong";
       final statusCode = e.response?.statusCode;
       return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
@@ -79,10 +81,11 @@ class AuthRepository {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      final msg =
-          e.response?.data["detail"] ??
-          e.response?.data["message"] ??
-          "Something went wrong";
+      final msg = e.response?.data is Map
+          ? e.response?.data["detail"] ??
+              e.response?.data["message"] ??
+              "Something went wrong"
+          : "Something went wrong";
       final statusCode = e.response?.statusCode;
       return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
@@ -108,10 +111,11 @@ class AuthRepository {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      final msg =
-          e.response?.data["detail"] ??
-          e.response?.data["message"] ??
-          "Something went wrong";
+      final msg = e.response?.data is Map
+          ? e.response?.data["detail"] ??
+              e.response?.data["message"] ??
+              "Something went wrong"
+          : "Something went wrong";
       final statusCode = e.response?.statusCode;
       return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
@@ -137,10 +141,11 @@ class AuthRepository {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      final msg =
-          e.response?.data["detail"] ??
-          e.response?.data["message"] ??
-          "Something went wrong";
+      final msg = e.response?.data is Map
+          ? e.response?.data["detail"] ??
+              e.response?.data["message"] ??
+              "Something went wrong"
+          : "Something went wrong";
       final statusCode = e.response?.statusCode;
       return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
@@ -167,10 +172,11 @@ class AuthRepository {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      final msg =
-          e.response?.data["detail"] ??
-          e.response?.data["message"] ??
-          "Something went wrong";
+      final msg = e.response?.data is Map
+          ? e.response?.data["detail"] ??
+              e.response?.data["message"] ??
+              "Something went wrong"
+          : "Something went wrong";
       final statusCode = e.response?.statusCode;
       return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {
@@ -196,10 +202,11 @@ class AuthRepository {
         statusCode: response.statusCode,
       );
     } on DioException catch (e) {
-      final msg =
-          e.response?.data["detail"] ??
-          e.response?.data["message"] ??
-          "Something went wrong";
+      final msg = e.response?.data is Map
+          ? e.response?.data["detail"] ??
+              e.response?.data["message"] ??
+              "Something went wrong"
+          : "Something went wrong";
       final statusCode = e.response?.statusCode;
       return SignUpResult(ok: false, error: msg, statusCode: statusCode);
     } catch (e) {

@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/core/utils/theme.dart';
 
 class PasswordResetConfirmationScreen extends StatelessWidget {
+  static const routeName = '/password-reset-confirmation';
   const PasswordResetConfirmationScreen({super.key});
 
   @override

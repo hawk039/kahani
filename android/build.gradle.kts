@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.2.1") // make sure this matches your AGP
         classpath("com.google.gms:google-services:4.4.2")  // Firebase plugin
+        classpath("com.google.firebase:firebase-appdistribution-gradle:5.0.0") // <-- ADD THIS LINE
     }
 }
 
