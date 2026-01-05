@@ -14,16 +14,19 @@ class HomeProvider extends ChangeNotifier {
   final HomeRepository _repo;
   final Box<Story> _storiesBox;
 
+  // --- State ---
   List<Story> stories = [];
   bool _isLoading = false;
   bool _isFetchingMore = false;
   bool _hasMore = true;
   int _page = 1;
 
+  // --- Filter and Sort State ---
   String _searchQuery = '';
   SortBy _sortBy = SortBy.newest;
   String? _filterGenre;
 
+  // --- Other existing states ---
   String? _selectedGenre;
   String? _selectedTone;
   String? _selectedLanguage;
@@ -39,6 +42,7 @@ class HomeProvider extends ChangeNotifier {
       : _repo = repo ?? HomeRepository(),
         _storiesBox = storiesBox ?? Hive.box<Story>('storiesBox');
 
+  // --- Getters ---
   bool get isLoading => _isLoading;
   bool get isFetchingMore => _isFetchingMore;
   String? get selectedGenre => _selectedGenre;
@@ -75,14 +79,6 @@ class HomeProvider extends ChangeNotifier {
         break;
     }
     return filtered;
-  }
-
-  void updateStoryInList(Story updatedStory) {
-    final index = stories.indexWhere((story) => story.id == updatedStory.id);
-    if (index != -1) {
-      stories[index] = updatedStory;
-      notifyListeners();
-    }
   }
 
   Future<Uint8List?> downloadImage(String url) async {
@@ -131,7 +127,20 @@ class HomeProvider extends ChangeNotifier {
     await _storiesBox.put(story.id, story);
   }
 
-  void setSearchQuery(String query) { _searchQuery = query; notifyListeners(); }
+  void updateStoryInList(Story updatedStory) {
+    final index = stories.indexWhere((s) => s.id == updatedStory.id);
+    if (index != -1) {
+      stories[index] = updatedStory;
+      notifyListeners();
+    }
+  }
+
+  // --- UI Actions & Filters ---
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
   void setSelectedGenre(String? genre) { _selectedGenre = genre; notifyListeners(); }
   void setSelectedTone(String? tone) { _selectedTone = tone; notifyListeners(); }
   void setSelectedLanguage(String? language) { _selectedLanguage = language; notifyListeners(); }
@@ -142,10 +151,22 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
   
-  void clearGenerationError() { _generationError = null; notifyListeners(); }
+  void clearGenerationError() {
+    _generationError = null;
+    notifyListeners();
+  }
+
+  // --- Image & Story Generation ---
+  void setActiveLocalImage() {
+    if (_selectedSampleUrl != null) {
+      _selectedSampleUrl = null;
+      notifyListeners();
+    }
+  }
 
   void setSelectedImage(Uint8List? imageBytes) {
     _selectedImage = imageBytes;
+    // When a new local image is set, it should become the active selection.
     _selectedSampleUrl = null;
     notifyListeners();
   }
@@ -155,6 +176,7 @@ class HomeProvider extends ChangeNotifier {
     final imageFile = await picker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
       _selectedImage = await imageFile.readAsBytes();
+      // Make the newly picked image the active selection.
       _selectedSampleUrl = null;
       notifyListeners();
     }
@@ -162,7 +184,8 @@ class HomeProvider extends ChangeNotifier {
 
   void selectSample(String url) {
     _selectedSampleUrl = url;
-    _selectedImage = null;
+    // Unselect local image if a sample is chosen.
+    // _selectedImage = null; // This is not ideal UX, let's keep the local image available
     notifyListeners();
   }
 

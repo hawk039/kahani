@@ -1,24 +1,27 @@
 import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:kahani_app/core/utils/theme.dart';
+import '../../../core/utils/theme.dart';
 
 class HorizontalImagePicker extends StatefulWidget {
   final List<String> sampleImages;
   final Uint8List? selectedImageBytes;
   final String? selectedSampleUrl;
   final VoidCallback onUploadTap;
-  final Function(String url) onSampleSelected;
+  final Function(String) onSampleSelected;
   final VoidCallback onScrolledToEnd;
+  final VoidCallback onLocalImageSelected;
 
   const HorizontalImagePicker({
     super.key,
     required this.sampleImages,
+    required this.selectedImageBytes,
+    required this.selectedSampleUrl,
     required this.onUploadTap,
     required this.onSampleSelected,
     required this.onScrolledToEnd,
-    this.selectedImageBytes,
-    this.selectedSampleUrl,
+    required this.onLocalImageSelected,
   });
 
   @override
@@ -26,104 +29,122 @@ class HorizontalImagePicker extends StatefulWidget {
 }
 
 class _HorizontalImagePickerState extends State<HorizontalImagePicker> {
-  final _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        widget.onScrolledToEnd();
+      }
+    });
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-      widget.onScrolledToEnd();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isUploadSelected = widget.selectedImageBytes != null;
+    final bool isLocalImageSelected =
+        widget.selectedImageBytes != null && widget.selectedSampleUrl == null;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Choose an Image",
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 18.sp,
+    return SizedBox(
+      height: 120.h,
+      child: Row(
+        children: [
+          // Upload Button
+          GestureDetector(
+            onTap: widget.onUploadTap,
+            child: Container(
+              width: 100.w,
+              height: 120.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: AppTheme.textMutedDark,
+                  width: 2,
+                ),
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_upload_outlined, color: AppTheme.textMutedDark),
+                  Text("Upload", style: TextStyle(color: AppTheme.textMutedDark)),
+                ],
+              ),
+            ),
           ),
-        ),
-        SizedBox(height: 8.h),
-        SizedBox(
-          height: 140.h,
-          child: ListView.separated(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            separatorBuilder: (_, __) => SizedBox(width: 12.w),
-            itemCount: widget.sampleImages.length + 1,
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return GestureDetector(
-                  onTap: widget.onUploadTap,
-                  child: Container(
-                    width: 100.w,
-                    height: 140.h,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14.r),
-                      border: Border.all(
-                        color: isUploadSelected ? AppTheme.secondary : AppTheme.borderDarker,
-                        width: 2,
+          SizedBox(width: 12.w),
+          // Image List
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.sampleImages.length +
+                  (widget.selectedImageBytes != null ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (widget.selectedImageBytes != null && index == 0) {
+                  return GestureDetector(
+                    onTap: widget.onLocalImageSelected,
+                    child: Container(
+                      margin: EdgeInsets.only(right: 8.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: isLocalImageSelected
+                            ? Border.all(color: AppTheme.secondary, width: 3)
+                            : null,
                       ),
-                      color: AppTheme.borderDarker,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: Image.memory(
+                          widget.selectedImageBytes!,
+                          fit: BoxFit.cover,
+                          width: 100.w,
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.upload_file_outlined, size: 32.r),
-                        SizedBox(height: 6.h),
-                        Text("Upload", style: TextStyle(fontSize: 12.sp)),
-                      ],
+                  );
+                }
+
+                final imageIndex =
+                    widget.selectedImageBytes != null ? index - 1 : index;
+                final imageUrl = widget.sampleImages[imageIndex];
+                final isSelected = widget.selectedSampleUrl == imageUrl;
+
+                return GestureDetector(
+                  onTap: () => widget.onSampleSelected(imageUrl),
+                  child: Container(
+                    margin: EdgeInsets.only(right: 8.w),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: isSelected
+                          ? Border.all(color: AppTheme.secondary, width: 3)
+                          : null,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.r),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.cover,
+                        width: 100.w,
+                        placeholder: (context, url) =>
+                            Container(color: AppTheme.borderDarker),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
                     ),
                   ),
                 );
-              }
-
-              final imgUrl = widget.sampleImages[index - 1];
-              final isSelected = imgUrl == widget.selectedSampleUrl;
-
-              return GestureDetector(
-                onTap: () => widget.onSampleSelected(imgUrl),
-                child: Container(
-                  width: 100.w,
-                  height: 140.h,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(
-                      color: isSelected ? AppTheme.secondary : Colors.transparent,
-                      width: 2,
-                    ),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(imgUrl),
-                    ),
-                  ),
-                ),
-              );
-            },
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
