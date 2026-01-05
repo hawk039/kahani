@@ -58,7 +58,7 @@ class _StoriesPageState extends State<StoriesPage> {
           children: [
             _buildHeader(),
 
-            if (!homeProvider.isLoading && homeProvider.stories.isNotEmpty)
+            if (homeProvider.stories.isNotEmpty)
               _buildFilterSection(homeProvider, uniqueGenres),
 
             Expanded(
@@ -77,7 +77,6 @@ class _StoriesPageState extends State<StoriesPage> {
 
   Widget _buildHeader() {
     return Container(
-      color: AppTheme.primary,
       padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
       child: Row(
         children: [
@@ -134,6 +133,7 @@ class _StoriesPageState extends State<StoriesPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           child: TextField(
+            onChanged: homeProvider.setSearchQuery,
             style: TextStyle(color: AppTheme.textLight, fontSize: 16.sp),
             cursorColor: AppTheme.textLight,
             decoration: InputDecoration(
@@ -143,10 +143,6 @@ class _StoriesPageState extends State<StoriesPage> {
               filled: true,
               fillColor: AppTheme.borderDarker,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide.none,
               ),
@@ -193,6 +189,8 @@ class _StoriesPageState extends State<StoriesPage> {
   Widget _buildEmptyState(HomeProvider homeProvider) {
     return RefreshIndicator(
       onRefresh: () => homeProvider.fetchStories(isInitial: true),
+      backgroundColor: AppTheme.secondary,
+      color: Colors.white,
       child: Stack(
         children: [
           ListView(), // Needed for RefreshIndicator to work
@@ -258,24 +256,23 @@ class _StoriesPageState extends State<StoriesPage> {
 
           final story = homeProvider.filteredStories[index];
           final cardViewModel = StoryCardViewModel(story);
-          final imageBytes = (homeProvider.stories.isNotEmpty &&
-                  homeProvider.stories.first.id == story.id)
-              ? homeProvider.selectedImage
-              : null;
 
           return Padding(
             padding: EdgeInsets.only(bottom: 12.h),
             child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(
+              onTap: () async {
+                final updatedStory = await Navigator.pushNamed(
                   context,
                   AppRoutes.storyDetail,
                   arguments: story,
-                );
+                ) as Story?;
+
+                if (updatedStory != null) {
+                  homeProvider.updateStoryInList(updatedStory);
+                }
               },
               child: StoryCard(
                 viewModel: cardViewModel,
-                imageBytes: imageBytes,
               ),
             ),
           );

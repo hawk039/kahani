@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:kahani_app/data/models/story.dart';
 
 class StoryDetailViewModel extends ChangeNotifier {
-  final Story story;
+  Story story; // Removed 'final' to allow mutation after saving.
   late final TextEditingController storyTextController;
 
   bool _isEditing = false;
@@ -19,7 +19,7 @@ class StoryDetailViewModel extends ChangeNotifier {
   void toggleEditing() {
     _isEditing = !_isEditing;
     if (!_isEditing) {
-      // If cancelling edit, revert changes
+      // If the user cancels the edit, revert the text field to the last saved state.
       storyTextController.text = story.story;
     }
     notifyListeners();
@@ -30,7 +30,11 @@ class StoryDetailViewModel extends ChangeNotifier {
 
     final box = Hive.box<Story>('storiesBox');
     final updatedStory = story.copyWith(story: storyTextController.text);
-    await box.put(story.id, updatedStory);
+
+    // --- FIX: Update the local story object to prevent stale data ---
+    story = updatedStory;
+    await box.put(story.id, story);
+    
     _isEditing = false;
     notifyListeners();
   }

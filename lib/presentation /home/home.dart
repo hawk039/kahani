@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,40 +29,42 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
     "English", "Spanish", "French", "German", "Hindi", "Japanese", "Mandarin", "Russian",
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // --- FIX: Fetch sample images when the dialog is first opened. ---
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final homeProvider = context.read<HomeProvider>();
+      if (homeProvider.sampleImages.isEmpty) {
+        homeProvider.fetchSampleImages();
+      }
+    });
+  }
+
   Future<void> _generateStory() async {
     final homeProvider = context.read<HomeProvider>();
     Uint8List? imageBytes = homeProvider.selectedImage;
 
     if (homeProvider.selectedSampleUrl != null && imageBytes == null) {
-      try {
-        final response = await Dio().get<Uint8List>(
-          homeProvider.selectedSampleUrl!,
-          options: Options(responseType: ResponseType.bytes),
+      imageBytes = await homeProvider.downloadImage(homeProvider.selectedSampleUrl!);
+      if (imageBytes == null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to download sample image.")),
         );
-        imageBytes = response.data;
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to download sample image.")),
-          );
-        }
         return;
       }
     }
 
-    if (imageBytes == null) {
+    if (imageBytes == null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select an image.")),
       );
       return;
     }
 
-    // --- BUG FIX ---
-    // Set the image bytes in the provider right before generation.
-    // This ensures the UI has access to the image data for the new story card.
     homeProvider.setSelectedImage(imageBytes);
 
-    final story = await homeProvider.generateStory(imageBytes: imageBytes);
+    final story = await homeProvider.generateStory(imageBytes: imageBytes!);
 
     if (story != null && mounted) {
       Navigator.of(context).pop();
