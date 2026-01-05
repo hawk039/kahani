@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:kahani_app/presentation/home/widget/image_picker.dart';
+import 'widget/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/utils/theme.dart';
@@ -32,7 +32,6 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
   @override
   void initState() {
     super.initState();
-    // --- FIX: Fetch sample images when the dialog is first opened. ---
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final homeProvider = context.read<HomeProvider>();
       if (homeProvider.sampleImages.isEmpty) {
@@ -43,9 +42,9 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
 
   Future<void> _generateStory() async {
     final homeProvider = context.read<HomeProvider>();
-    Uint8List? imageBytes = homeProvider.selectedImage;
+    Uint8List? imageBytes;
 
-    if (homeProvider.selectedSampleUrl != null && imageBytes == null) {
+    if (homeProvider.selectedSampleUrl != null) {
       imageBytes = await homeProvider.downloadImage(homeProvider.selectedSampleUrl!);
       if (imageBytes == null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -53,6 +52,8 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
         );
         return;
       }
+    } else {
+      imageBytes = homeProvider.selectedImage;
     }
 
     if (imageBytes == null && mounted) {
@@ -62,8 +63,7 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
       return;
     }
 
-    homeProvider.setSelectedImage(imageBytes);
-
+    // FIX: Add the null assertion operator (!) because we have already checked for null.
     final story = await homeProvider.generateStory(imageBytes: imageBytes!);
 
     if (story != null && mounted) {
@@ -107,6 +107,7 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
                     onUploadTap: homeProvider.pickImage,
                     onSampleSelected: homeProvider.selectSample,
                     onScrolledToEnd: homeProvider.fetchSampleImages,
+                    onLocalImageSelected: homeProvider.setActiveLocalImage,
                   ),
                   SizedBox(height: 20.h),
                   Text("Select Genre", style: theme.textTheme.titleMedium?.copyWith(fontSize: 18.sp)),
