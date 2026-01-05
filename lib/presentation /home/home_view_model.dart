@@ -14,14 +14,16 @@ class HomeProvider extends ChangeNotifier {
   final HomeRepository _repo;
   final Box<Story> _storiesBox;
 
-  // --- State ---
   List<Story> stories = [];
   bool _isLoading = false;
   bool _isFetchingMore = false;
   bool _hasMore = true;
   int _page = 1;
 
-  // --- Other existing states ---
+  String _searchQuery = '';
+  SortBy _sortBy = SortBy.newest;
+  String? _filterGenre;
+
   String? _selectedGenre;
   String? _selectedTone;
   String? _selectedLanguage;
@@ -32,15 +34,11 @@ class HomeProvider extends ChangeNotifier {
   bool _isFetchingImages = false;
   bool _isGeneratingStory = false;
   String? _generationError;
-  SortBy _sortBy = SortBy.newest;
-  String? _filterGenre;
 
-  // Constructor now only initializes.
   HomeProvider({HomeRepository? repo, Box<Story>? storiesBox})
       : _repo = repo ?? HomeRepository(),
         _storiesBox = storiesBox ?? Hive.box<Story>('storiesBox');
 
-  // --- Getters ---
   bool get isLoading => _isLoading;
   bool get isFetchingMore => _isFetchingMore;
   String? get selectedGenre => _selectedGenre;
@@ -55,9 +53,19 @@ class HomeProvider extends ChangeNotifier {
 
   List<Story> get filteredStories {
     List<Story> filtered = List.from(stories);
+
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered.where((story) {
+        final titleMatch = story.title.toLowerCase().contains(_searchQuery.toLowerCase());
+        final storyMatch = story.story.toLowerCase().contains(_searchQuery.toLowerCase());
+        return titleMatch || storyMatch;
+      }).toList();
+    }
+
     if (_filterGenre != null) {
       filtered = filtered.where((story) => story.metadata.genre == _filterGenre).toList();
     }
+
     switch (_sortBy) {
       case SortBy.newest:
         filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -69,24 +77,33 @@ class HomeProvider extends ChangeNotifier {
     return filtered;
   }
 
-  // --- Story Fetching and Management ---
+  void updateStoryInList(Story updatedStory) {
+    final index = stories.indexWhere((story) => story.id == updatedStory.id);
+    if (index != -1) {
+      stories[index] = updatedStory;
+      notifyListeners();
+    }
+  }
+
+  Future<Uint8List?> downloadImage(String url) async {
+    return await _repo.downloadImageAsBytes(url);
+  }
+
   Future<void> fetchStories({bool isInitial = false}) async {
-    // For pagination, exit if already fetching or no more data
     if (!isInitial && (_isFetchingMore || !_hasMore)) return;
 
     if (isInitial) {
       _page = 1;
       _hasMore = true;
       _isLoading = true;
-      notifyListeners(); // Show main shimmer
+      notifyListeners();
     } else {
       _isFetchingMore = true;
-      notifyListeners(); // Show bottom spinner
+      notifyListeners();
     }
 
     final newStories = await _repo.getMyStories(page: _page, limit: 10);
 
-    // On initial fetch, clear both the memory and the cache
     if (isInitial) {
       stories.clear();
       await _storiesBox.clear();
@@ -94,7 +111,6 @@ class HomeProvider extends ChangeNotifier {
 
     if (newStories.isNotEmpty) {
       stories.addAll(newStories);
-      // Update the Hive cache with the new data
       for (var story in newStories) {
         await _storiesBox.put(story.id, story);
       }
@@ -103,7 +119,6 @@ class HomeProvider extends ChangeNotifier {
       _hasMore = false;
     }
 
-    // Update loading flags
     if (isInitial) {
       _isLoading = false;
     } else {
@@ -116,7 +131,7 @@ class HomeProvider extends ChangeNotifier {
     await _storiesBox.put(story.id, story);
   }
 
-  // --- UI Actions ---
+  void setSearchQuery(String query) { _searchQuery = query; notifyListeners(); }
   void setSelectedGenre(String? genre) { _selectedGenre = genre; notifyListeners(); }
   void setSelectedTone(String? tone) { _selectedTone = tone; notifyListeners(); }
   void setSelectedLanguage(String? language) { _selectedLanguage = language; notifyListeners(); }
@@ -127,12 +142,8 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
   
-  void clearGenerationError() {
-    _generationError = null;
-    notifyListeners();
-  }
+  void clearGenerationError() { _generationError = null; notifyListeners(); }
 
-  // --- Image & Story Generation (existing methods) ---
   void setSelectedImage(Uint8List? imageBytes) {
     _selectedImage = imageBytes;
     _selectedSampleUrl = null;
@@ -186,7 +197,6 @@ class HomeProvider extends ChangeNotifier {
 
     if (result.ok) {
       final newStory = result.story!;
-      // Add newly generated story to the top of the list
       stories.insert(0, newStory);
       await _saveStory(newStory);
       _isGeneratingStory = false;

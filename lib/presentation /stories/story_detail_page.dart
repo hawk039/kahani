@@ -17,129 +17,140 @@ class StoryDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => StoryDetailViewModel(story),
-      child: Consumer<StoryDetailViewModel>(
-        builder: (context, viewModel, child) {
-          return Scaffold(
-            body: SafeArea(
-              child: Column(
-                children: [
-                  _buildAppBar(context),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16.r),
-                              child: AspectRatio(
-                                aspectRatio: 16 / 9,
-                                child: CachedNetworkImage(
-                                  imageUrl: viewModel.imageUrl,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Container(
-                                    color: AppTheme.borderDarker,
-                                    alignment: Alignment.center,
-                                    child: const CircularProgressIndicator(
-                                      color: AppTheme.secondary,
-                                      strokeWidth: 2.0,
+      // Use a WillPopScope to intercept the back button press.
+      child: WillPopScope(
+        onWillPop: () async {
+          // When the user leaves, pop with the latest version of the story.
+          final viewModel = context.read<StoryDetailViewModel>();
+          Navigator.of(context).pop(viewModel.story);
+          return true; // Allow pop to happen.
+        },
+        child: Consumer<StoryDetailViewModel>(
+          builder: (context, viewModel, child) {
+            return Scaffold(
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    _buildAppBar(context, viewModel),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16.r),
+                                child: AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: CachedNetworkImage(
+                                    imageUrl: viewModel.imageUrl,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: AppTheme.borderDarker,
+                                      alignment: Alignment.center,
+                                      child: const CircularProgressIndicator(
+                                        color: AppTheme.secondary,
+                                        strokeWidth: 2.0,
+                                      ),
                                     ),
-                                  ),
-                                  errorWidget: (context, url, error) => Container(
-                                    color: AppTheme.borderDarker,
-                                    child: const Icon(Icons.image_not_supported, color: AppTheme.textMutedDark),
+                                    errorWidget: (context, url, error) => Container(
+                                      color: AppTheme.borderDarker,
+                                      child: const Icon(Icons.image_not_supported,
+                                          color: AppTheme.textMutedDark),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    viewModel.title,
+                                    style: AppTheme.heading.copyWith(fontSize: 24.sp),
+                                  ),
+                                  SizedBox(height: 12.h),
+                                  viewModel.isEditing
+                                      ? TextField(
+                                          controller: viewModel.storyTextController,
+                                          maxLines: null,
+                                          cursorColor: Colors.white,
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            color: AppTheme.textLight,
+                                            height: 1.5,
+                                          ),
+                                          decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: 'Your story here...',
+                                          ),
+                                        )
+                                      : Text(
+                                          viewModel.storyTextController.text.replaceAll('\\n', '\n\n'),
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            color: AppTheme.textLight,
+                                            height: 1.5,
+                                          ),
+                                        ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(bottom: 16.h),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+                        border: const Border(top: BorderSide(color: AppTheme.borderDarker, width: 1.5)),
+                      ),
+                      child: Column(
+                        children: [
+                          const StoryActionBar(),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  viewModel.title,
-                                  style: AppTheme.heading.copyWith(fontSize: 24.sp),
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 52.h,
+                              child: ElevatedButton(
+                                onPressed: viewModel.isEditing ? viewModel.saveStory : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.secondary,
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: AppTheme.secondary.withOpacity(0.5),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
                                 ),
-                                SizedBox(height: 12.h),
-                                viewModel.isEditing
-                                    ? TextField(
-                                        controller: viewModel.storyTextController,
-                                        maxLines: null, // Allows for multiline input
-                                        cursorColor: Colors.white,
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          color: AppTheme.textLight,
-                                          height: 1.5,
-                                        ),
-                                        decoration: const InputDecoration(
-                                          border: InputBorder.none,
-                                          hintText: 'Your story here...',
-                                        ),
-                                      )
-                                    : Text(
-                                        viewModel.storyTextController.text.replaceAll('\\n', '\n\n'),
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          color: AppTheme.textLight,
-                                          height: 1.5,
-                                        ),
-                                      ),
-                              ],
+                                child: Text(
+                                  "Save Story",
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(bottom: 16.h),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
-                      border: const Border(top: BorderSide(color: AppTheme.borderDarker, width: 1.5)),
-                    ),
-                    child: Column(
-                      children: [
-                        const StoryActionBar(),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 52.h,
-                            child: ElevatedButton(
-                              onPressed: viewModel.isEditing ? viewModel.saveStory : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.secondary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
-                                ),
-                              ),
-                              child: Text(
-                                viewModel.isEditing ? "Save Story" : "Story Saved",
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, StoryDetailViewModel viewModel) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       child: Row(
@@ -147,7 +158,8 @@ class StoryDetailPage extends StatelessWidget {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
+            // Pass the latest story data back when the app bar back button is pressed.
+            onPressed: () => Navigator.of(context).pop(viewModel.story),
           ),
           Text(
             "Your Story",

@@ -18,6 +18,19 @@ class HomeRepository {
     return e.response?.data?.toString() ?? 'Something went wrong';
   }
 
+  Future<Uint8List?> downloadImageAsBytes(String url) async {
+    try {
+      final response = await Dio().get<Uint8List>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return response.data;
+    } catch (e) {
+      log('Failed to download sample image: $e');
+      return null;
+    }
+  }
+
   Future<List<String>> fetchSampleImages(int page) async {
     try {
       final response = await _unsplashDio.get(
