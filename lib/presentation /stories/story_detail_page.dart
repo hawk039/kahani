@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kahani_app/data/models/story.dart';
 import 'package:kahani_app/core/utils/theme.dart';
-import 'package:kahani_app/presentation%20/stories/story_detail_view_model.dart';
+// FIX: Corrected the broken import path.
+import 'package:kahani_app/presentation /stories/story_detail_view_model.dart';
 import 'package:provider/provider.dart';
 import 'widgets/story_action_bar.dart';
 
@@ -17,16 +19,27 @@ class StoryDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => StoryDetailViewModel(story),
-      // Use a WillPopScope to intercept the back button press.
       child: WillPopScope(
         onWillPop: () async {
-          // When the user leaves, pop with the latest version of the story.
           final viewModel = context.read<StoryDetailViewModel>();
           Navigator.of(context).pop(viewModel.story);
-          return true; // Allow pop to happen.
+          return true;
         },
         child: Consumer<StoryDetailViewModel>(
           builder: (context, viewModel, child) {
+            // Show a SnackBar if there is an error message.
+            if (viewModel.errorMessage != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(viewModel.errorMessage!),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                viewModel.clearError(); // Clear error after showing.
+              });
+            }
+
             return Scaffold(
               body: SafeArea(
                 child: Column(
@@ -118,7 +131,9 @@ class StoryDetailPage extends StatelessWidget {
                               width: double.infinity,
                               height: 52.h,
                               child: ElevatedButton(
-                                onPressed: viewModel.isEditing ? viewModel.saveStory : null,
+                                onPressed: viewModel.isEditing && !viewModel.isSaving
+                                    ? () => viewModel.saveStory()
+                                    : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.secondary,
                                   foregroundColor: Colors.white,
@@ -127,13 +142,15 @@ class StoryDetailPage extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12.r),
                                   ),
                                 ),
-                                child: Text(
-                                  "Save Story",
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                child: viewModel.isSaving
+                                    ? const CupertinoActivityIndicator(color: Colors.white)
+                                    : Text(
+                                        "Save Story",
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -158,7 +175,6 @@ class StoryDetailPage extends StatelessWidget {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            // Pass the latest story data back when the app bar back button is pressed.
             onPressed: () => Navigator.of(context).pop(viewModel.story),
           ),
           Text(

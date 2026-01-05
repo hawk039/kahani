@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:kahani_app/presentation%20/home/widget/image_picker.dart';
+import 'package:kahani_app/presentation/home/widget/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/utils/theme.dart';

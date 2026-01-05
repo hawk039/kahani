@@ -1,60 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:kahani_app/core/utils/theme.dart';
 
+import '../../core/utils/theme.dart';
 import '../home/home_view_model.dart';
 
-enum ChipType { genre, tone, language } // Added language
+// --- FIX: Added the missing enum definition ---
+enum ChipType { genre, tone, language }
 
 class SelectableChipList extends StatelessWidget {
   final List<String> options;
   final ChipType chipType;
 
-  const SelectableChipList({
-    Key? key,
-    required this.options,
-    required this.chipType,
-  }) : super(key: key);
+  const SelectableChipList({super.key, required this.options, required this.chipType});
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HomeProvider>(context);
+    final homeProvider = context.watch<HomeProvider>();
+
     String? selectedValue;
-    void Function(String?)? updateFunction;
+    Function(String?) onSelected;
 
     switch (chipType) {
       case ChipType.genre:
-        selectedValue = provider.selectedGenre;
-        updateFunction = provider.setSelectedGenre;
+        selectedValue = homeProvider.selectedGenre;
+        onSelected = homeProvider.setSelectedGenre;
         break;
       case ChipType.tone:
-        selectedValue = provider.selectedTone;
-        updateFunction = provider.setSelectedTone;
+        selectedValue = homeProvider.selectedTone;
+        onSelected = homeProvider.setSelectedTone;
         break;
-      case ChipType.language: // Added case for language
-        selectedValue = provider.selectedLanguage;
-        updateFunction = provider.setSelectedLanguage;
+      case ChipType.language:
+        selectedValue = homeProvider.selectedLanguage;
+        onSelected = homeProvider.setSelectedLanguage;
         break;
     }
 
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: options.map((item) {
-        final isActive = selectedValue == item;
+      spacing: 8.w,
+      runSpacing: 8.h,
+      children: options.map((option) {
+        final isSelected = selectedValue == option;
         return ChoiceChip(
-          label: Text(
-            item,
-            style: TextStyle(
-              color: AppTheme.textLight,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          selected: isActive,
-          onSelected: (_) => updateFunction!(isActive ? null : item),
+          label: Text(option),
+          selected: isSelected,
+          onSelected: (selected) {
+            onSelected(selected ? option : null);
+          },
           backgroundColor: AppTheme.borderDarker,
           selectedColor: AppTheme.secondary,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : AppTheme.textMutedLight,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
+            side: BorderSide(
+              color: isSelected ? AppTheme.secondary : AppTheme.borderDarker,
+              width: 1.5,
+            ),
+          ),
         );
       }).toList(),
     );

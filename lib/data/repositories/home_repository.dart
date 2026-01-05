@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:hive/hive.dart';
+import 'package:kahani_app/data/models/api_result.dart';
 import '../../core/config/api_keys.dart';
 import '../models/generate_story_result.dart';
 import '../models/story.dart';
@@ -16,6 +17,33 @@ class HomeRepository {
       return e.response!.data['detail'] ?? 'Something went wrong';
     }
     return e.response?.data?.toString() ?? 'Something went wrong';
+  }
+
+  Future<ApiResult> updateStory(Story story) async {
+    try {
+      final box = Hive.box('authBox');
+      final String? token = box.get('token');
+
+      if (token == null || token.isEmpty) {
+        return ApiResult(success: false, error: 'Not authenticated');
+      }
+
+      await _kahaniDio.put(
+        '/generate-story/update/${story.id}',
+        data: {
+          'title': story.title,
+          'story': story.story,
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      return ApiResult(success: true);
+    } on DioException catch (e) {
+      return ApiResult(success: false, error: _getErrorMessage(e));
+    } catch (e) {
+      return ApiResult(success: false, error: 'An unexpected error occurred.');
+    }
   }
 
   Future<Uint8List?> downloadImageAsBytes(String url) async {
@@ -127,10 +155,8 @@ class HomeRepository {
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
-            // Set the correct content type for file uploads
             'Content-Type': 'multipart/form-data',
           },
-          // Increase timeout for this specific request
           receiveTimeout: const Duration(seconds: 60),
         ),
       );
