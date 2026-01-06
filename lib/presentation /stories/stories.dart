@@ -4,12 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/data/models/story.dart';
-import 'package:kahani_app/presentation%20/home/home.dart';
-import 'package:kahani_app/presentation%20/home/home_view_model.dart';
-import 'package:kahani_app/presentation%20/stories/widgets/filter_chip_widget.dart';
-import 'package:kahani_app/presentation%20/stories/widgets/story_card.dart';
-import 'package:kahani_app/presentation%20/stories/widgets/story_card_shimmer.dart';
-import 'package:kahani_app/presentation%20/stories/widgets/story_card_view_model.dart';
+// FIX: Use relative imports to handle the directory space correctly.
+import '../home/home.dart';
+import '../home/home_view_model.dart';
+import '../profile/widgets/profile_dropdown.dart';
+import 'widgets/filter_chip_widget.dart';
+import 'widgets/story_card.dart';
+import 'widgets/story_card_shimmer.dart';
+import 'widgets/story_card_view_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/utils/assets.dart';
@@ -25,6 +27,7 @@ class StoriesPage extends StatefulWidget {
 
 class _StoriesPageState extends State<StoriesPage> {
   final ScrollController _scrollController = ScrollController();
+  bool _isProfileDropdownVisible = false;
 
   @override
   void initState() {
@@ -33,8 +36,7 @@ class _StoriesPageState extends State<StoriesPage> {
     homeProvider.fetchStories(isInitial: true);
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
         homeProvider.fetchStories();
       }
     });
@@ -54,20 +56,31 @@ class _StoriesPageState extends State<StoriesPage> {
     return Scaffold(
       backgroundColor: AppTheme.primary,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildHeader(),
-
-            if (homeProvider.stories.isNotEmpty)
-              _buildFilterSection(homeProvider, uniqueGenres),
-
-            Expanded(
-              child: homeProvider.isLoading && homeProvider.stories.isEmpty
-                  ? _buildShimmerList()
-                  : (homeProvider.filteredStories.isEmpty
-                      ? _buildEmptyState(homeProvider)
-                      : _buildStoryList(homeProvider)),
+            Column(
+              children: [
+                _buildHeader(),
+                if (homeProvider.stories.isNotEmpty) _buildFilterSection(homeProvider, uniqueGenres),
+                Expanded(
+                  child: homeProvider.isLoading && homeProvider.stories.isEmpty
+                      ? _buildShimmerList()
+                      : (homeProvider.filteredStories.isEmpty
+                          ? _buildEmptyState(homeProvider)
+                          : _buildStoryList(homeProvider)),
+                ),
+              ],
             ),
+            if (_isProfileDropdownVisible)
+              Positioned(
+                top: 60.h, 
+                left: 16.w,
+                child: ProfileDropdown(
+                  onLogout: () {
+                    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+                  },
+                ),
+              ),
           ],
         ),
       ),
@@ -76,16 +89,48 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   Widget _buildHeader() {
+    const String? imageUrl = null; // Replace with actual user data
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: Center(
-              child: Text("My Stories",
-                  style: AppTheme.heading.copyWith(fontSize: 24.sp)),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isProfileDropdownVisible = !_isProfileDropdownVisible;
+              });
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: _isProfileDropdownVisible
+                    ? Border.all(color: Colors.white, width: 2.5)
+                    : null,
+              ),
+              child: CircleAvatar(
+                radius: 20.r,
+                backgroundColor: AppTheme.secondary,
+                child: imageUrl != null && imageUrl.isNotEmpty
+                    ? ClipOval(
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          width: 40.r,
+                          height: 40.r,
+                        ),
+                      )
+                    : Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 24.r,
+                      ),
+              ),
             ),
           ),
+          Text("My Stories", style: AppTheme.heading.copyWith(fontSize: 24.sp)),
+          SizedBox(width: 40.w), // To balance the avatar
         ],
       ),
     );
@@ -95,10 +140,7 @@ class _StoriesPageState extends State<StoriesPage> {
     return Theme(
       data: Theme.of(context).copyWith(
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-          sizeConstraints: BoxConstraints.tightFor(
-            width: 70.r,
-            height: 70.r,
-          ),
+          sizeConstraints: BoxConstraints.tightFor(width: 70.r, height: 70.r),
         ),
       ),
       child: FloatingActionButton(
@@ -107,9 +149,7 @@ class _StoriesPageState extends State<StoriesPage> {
             context: context,
             builder: (context) => Dialog(
               insetPadding: EdgeInsets.all(16.w),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.r),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
               child: SizedBox(
                 width: double.infinity,
                 height: ScreenUtil().screenHeight * 0.8,
@@ -126,8 +166,7 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
-  Widget _buildFilterSection(
-      HomeProvider homeProvider, List<String> uniqueGenres) {
+  Widget _buildFilterSection(HomeProvider homeProvider, List<String> uniqueGenres) {
     return Column(
       children: [
         Padding(
@@ -138,18 +177,11 @@ class _StoriesPageState extends State<StoriesPage> {
             cursorColor: AppTheme.textLight,
             decoration: InputDecoration(
               hintText: "Search your stories...",
-              prefixIcon:
-                  Icon(Icons.search, color: AppTheme.textMutedDark, size: 24.r),
+              prefixIcon: Icon(Icons.search, color: AppTheme.textMutedDark, size: 24.r),
               filled: true,
               fillColor: AppTheme.borderDarker,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: AppTheme.secondary, width: 2),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppTheme.secondary, width: 2)),
               hintStyle: TextStyle(color: AppTheme.textMutedDark, fontSize: 16.sp),
             ),
           ),
@@ -161,15 +193,11 @@ class _StoriesPageState extends State<StoriesPage> {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             children: [
               FilterChipWidget(
-                label: homeProvider.sortBy == SortBy.newest
-                    ? "Sort: Newest"
-                    : "Sort: Oldest",
+                label: homeProvider.sortBy == SortBy.newest ? "Sort: Newest" : "Sort: Oldest",
                 icon: Icons.sort,
                 isSelected: true,
                 onTap: () {
-                  final newSort = homeProvider.sortBy == SortBy.newest
-                      ? SortBy.oldest
-                      : SortBy.newest;
+                  final newSort = homeProvider.sortBy == SortBy.newest ? SortBy.oldest : SortBy.newest;
                   homeProvider.setSortBy(newSort);
                 },
               ),
@@ -200,10 +228,7 @@ class _StoriesPageState extends State<StoriesPage> {
               children: [
                 Container(
                   padding: EdgeInsets.all(48.r),
-                  decoration: const BoxDecoration(
-                    color: AppTheme.secondary,
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: const BoxDecoration(color: AppTheme.secondary, shape: BoxShape.circle),
                   child: SvgPicture.asset(
                     AppAssets.feather,
                     width: 64.w,
@@ -212,10 +237,7 @@ class _StoriesPageState extends State<StoriesPage> {
                   ),
                 ),
                 SizedBox(height: 24.h),
-                Text(
-                  "No stories yet. Begin your journey!",
-                  style: TextStyle(color: AppTheme.textMutedDark, fontSize: 18.sp),
-                ),
+                Text("No stories yet. Begin your journey!", style: TextStyle(color: AppTheme.textMutedDark, fontSize: 18.sp)),
               ],
             ),
           ),
@@ -244,8 +266,7 @@ class _StoriesPageState extends State<StoriesPage> {
       child: ListView.builder(
         controller: _scrollController,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        itemCount: homeProvider.filteredStories.length +
-            (homeProvider.isFetchingMore ? 1 : 0),
+        itemCount: homeProvider.filteredStories.length + (homeProvider.isFetchingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= homeProvider.filteredStories.length) {
             return const Padding(
@@ -271,9 +292,7 @@ class _StoriesPageState extends State<StoriesPage> {
                   homeProvider.updateStoryInList(updatedStory);
                 }
               },
-              child: StoryCard(
-                viewModel: cardViewModel,
-              ),
+              child: StoryCard(viewModel: cardViewModel),
             ),
           );
         },

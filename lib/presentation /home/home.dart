@@ -63,7 +63,6 @@ class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
       return;
     }
 
-    // FIX: Add the null assertion operator (!) because we have already checked for null.
     final story = await homeProvider.generateStory(imageBytes: imageBytes!);
 
     if (story != null && mounted) {

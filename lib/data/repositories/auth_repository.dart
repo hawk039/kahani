@@ -1,11 +1,29 @@
 import 'package:dio/dio.dart';
+import '../models/api_result.dart';
 import '../models/sign_up_result.dart';
 import '../network/api_client.dart';
 
 class AuthRepository {
   final Dio _dio = ApiClient.dio;
 
-  /// 🔹 Email + Password Signup
+  Future<ApiResult> logout(String token) async {
+    try {
+      await _dio.post(
+        "/auth/logout",
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      return ApiResult(success: true);
+    } on DioException catch (e) {
+      // Even if the token is already expired, we count it as a success locally.
+      if (e.response?.statusCode == 401) {
+        return ApiResult(success: true);
+      }
+      return ApiResult(success: false, error: e.message);
+    } catch (e) {
+      return ApiResult(success: false, error: e.toString());
+    }
+  }
+
   Future<SignUpResult> signUp({
     required String email,
     required String password,
@@ -34,7 +52,6 @@ class AuthRepository {
     }
   }
 
-  /// 🔹 Email + Password Login
   Future<SignUpResult> login({
     required String email,
     required String password,
@@ -63,7 +80,6 @@ class AuthRepository {
     }
   }
 
-  /// 🔹 Google Signup
   Future<SignUpResult> signUpWithGoogle({
     required String uid,
     required String email,
@@ -71,7 +87,7 @@ class AuthRepository {
   }) async {
     try {
       final response = await _dio.post(
-        "/auth/google-auth",
+        "/auth/google-signup",
         data: {"uid": uid, "email": email, "token": token},
       );
 
@@ -93,7 +109,6 @@ class AuthRepository {
     }
   }
 
-  /// 🔹 Google Login
   Future<SignUpResult> loginWithGoogle({
     required String uid,
     required String token,
@@ -123,7 +138,6 @@ class AuthRepository {
     }
   }
 
-  /// 🔹 Apple Signup
   Future<SignUpResult> signUpWithApple({
     required String uid,
     required String email,
@@ -153,7 +167,6 @@ class AuthRepository {
     }
   }
 
-  /// 🔹 Forgot Password
   Future<SignUpResult> resetPassword({
     required String email,
     required String newPassword,
@@ -184,7 +197,6 @@ class AuthRepository {
     }
   }
 
-  /// 🔹 Apple Login
   Future<SignUpResult> loginWithApple({
     required String uid,
     required String token,
