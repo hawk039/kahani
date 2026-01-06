@@ -20,8 +20,15 @@ import 'core/app_routes.dart';
 import 'core/utils/theme.dart';
 import 'firebase_options.dart';
 
+// Read the server client ID from the environment variables passed at build time.
+const serverClientId = String.fromEnvironment('SERVER_CLIENT_ID');
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (serverClientId.isEmpty) {
+    throw Exception('SERVER_CLIENT_ID is not provided. Please pass it as a --dart-define flag.');
+  }
 
   // Initialize the environment first
   Environment().initialize();
@@ -35,9 +42,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // FIX: Initialize the GoogleSignInService with your Server Client ID
+  // Initialize the GoogleSignInService with the key from the environment.
   await GoogleSignInService().initialize(
-    serverClientId: '483636251174-ivros4mu1nii96q3d583fgdoiqci3sbs.apps.googleusercontent.com',
+    serverClientId: serverClientId,
   );
 
   await Hive.initFlutter();
