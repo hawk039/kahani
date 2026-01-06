@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:kahani_app/services/google_signin_service.dart';
 
 import 'package:kahani_app/data/models/story.dart';
 import 'package:kahani_app/data/models/story_metadata.dart';
 import 'package:kahani_app/core/config/config.dart';
-import 'package:kahani_app/data/network/api_client.dart'; // Import ApiClient
+import 'package:kahani_app/data/network/api_client.dart';
 
-import 'package:kahani_app/presentation%20/auth/login/login_view.dart';
-import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
-import 'package:kahani_app/presentation%20/home/home_view_model.dart';
-import 'package:kahani_app/presentation%20/stories/stories.dart';
+import 'package:kahani_app/presentation /auth/login/login_view.dart';
+import 'package:kahani_app/presentation /auth/login/login_view_model.dart';
+import 'package:kahani_app/presentation /home/home_view_model.dart';
+import 'package:kahani_app/presentation /stories/stories.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/app_routes.dart';
@@ -33,6 +34,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // FIX: Initialize the GoogleSignInService with your Server Client ID
+  await GoogleSignInService().initialize(
+    serverClientId: '483636251174-ivros4mu1nii96q3d583fgdoiqci3sbs.apps.googleusercontent.com',
+  );
+
   await Hive.initFlutter();
 
   Hive.registerAdapter(StoryAdapter());

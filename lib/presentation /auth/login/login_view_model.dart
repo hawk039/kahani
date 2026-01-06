@@ -1,5 +1,3 @@
-// lib/presentation/auth/login/login_view_model.dart
-
 import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,25 +5,23 @@ import 'package:hive/hive.dart';
 
 import '../../../data/repositories/auth_repository.dart';
 import '../../../services/google_signin_service.dart';
-import '../../../services/apple_signin_service.dart'; // 🔹 Apple Sign-In service
+import '../../../services/apple_signin_service.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   bool _isLoading = false;
-
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
-
   String? get errorMessage => _errorMessage;
 
   String? _passwordErrorMessage;
-
   String? get passwordErrorMessage => _passwordErrorMessage;
 
-  final AuthRepository _repo = AuthRepository(); // DI later
+  final AuthRepository _repo = AuthRepository();
+  final GoogleSignInService _googleSignInService = GoogleSignInService();
 
   void setLoading(bool v) {
     _isLoading = v;
@@ -91,13 +87,12 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  /// 🔥 Google Login
   Future<bool> onGoogleLogin() async {
     clearError();
     setLoading(true);
 
     try {
-      final userCredential = await GoogleSignInService().signInWithGoogle();
+      final userCredential = await _googleSignInService.signInWithGoogle();
       final user = userCredential.user;
 
       if (user == null) {
@@ -105,16 +100,17 @@ class LoginViewModel extends ChangeNotifier {
         return false;
       }
 
-      final token = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
+      final token = await user.getIdToken();
       final result = await _repo.loginWithGoogle(
         uid: user.uid,
         email: user.email!,
-        token: token,
+        token: token ?? '',
       );
 
       if (result.ok) {
+        // FIX: Save the JWT from YOUR backend, not the Firebase token.
         var box = Hive.box('authBox');
-        await box.put('token', token);
+        await box.put('token', result.token);
 
         log('Google Login Successful → Token saved');
         return true;
@@ -134,14 +130,12 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  /// 🍏 Apple Login
   Future<bool> onAppleLogin() async {
     clearError();
     setLoading(true);
 
     try {
-      final UserCredential userCred = await AppleSignInService()
-          .signInWithApple();
+      final UserCredential userCred = await AppleSignInService().signInWithApple();
 
       final user = userCred.user;
 
@@ -151,24 +145,13 @@ class LoginViewModel extends ChangeNotifier {
       }
 
       final uid = user.uid;
-      final email =
-          user.email ?? ""; // Apple may not return email after first login
-      final firebaseToken = await user.getIdToken(); // Firebase JWT Token
+      final email = user.email ?? "";
+      final firebaseToken = await user.getIdToken();
 
-      // Optional: raw Apple identity token if backend needs it
-      final OAuthCredential? oauthCred =
-          userCred.credential as OAuthCredential?;
-      final rawAppleToken = oauthCred?.idToken ?? "";
-
-      log("Apple Login → UID: $uid, Email: $email");
-      log("Firebase Token: $firebaseToken");
-      log("Apple Raw Token: $rawAppleToken");
-
-      // Send to backend
       final result = await _repo.loginWithApple(
         uid: uid,
         email: email,
-        token: firebaseToken ?? "", // Use Firebase Token to authenticate
+        token: firebaseToken ?? "",
       );
 
       if (result.ok) {

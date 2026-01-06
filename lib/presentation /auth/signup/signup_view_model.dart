@@ -1,12 +1,8 @@
-// lib/presentation/auth/signup/signup_view_model.dart
 import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart'
-    show SignInWithApple, AppleIDAuthorizationScopes;
-
+import 'package:kahani_app/services/apple_signin_service.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../services/google_signin_service.dart';
 
@@ -15,18 +11,16 @@ class SignUpViewModel extends ChangeNotifier {
   final passwordController = TextEditingController();
 
   bool _isLoading = false;
-
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
-
   String? get errorMessage => _errorMessage;
 
   String? _passwordErrorMessage;
-
   String? get passwordErrorMessage => _passwordErrorMessage;
 
-  final AuthRepository _repo = AuthRepository(); // replace with DI later
+  final AuthRepository _repo = AuthRepository();
+  final GoogleSignInService _googleSignInService = GoogleSignInService();
 
   void setLoading(bool v) {
     _isLoading = v;
@@ -60,7 +54,6 @@ class SignUpViewModel extends ChangeNotifier {
     clearError();
     clearPasswordError();
 
-    // --- Client-side validation ---
     if (email.isEmpty || password.isEmpty) {
       _setError('Something went wrong');
       return false;
@@ -101,7 +94,7 @@ class SignUpViewModel extends ChangeNotifier {
     setLoading(true);
 
     try {
-      final userCredential = await GoogleSignInService().signInWithGoogle();
+      final userCredential = await _googleSignInService.signInWithGoogle();
       final user = userCredential.user;
 
       if (user == null) {
@@ -110,17 +103,19 @@ class SignUpViewModel extends ChangeNotifier {
       }
 
       log('Google Sign-Up successful: ${user.email}, UID: ${user.uid}');
-      final token = await FirebaseAuth.instance.currentUser?.getIdToken() ?? "";
+      final token = await user.getIdToken();
+
       final result = await _repo.signUpWithGoogle(
         uid: user.uid,
         email: user.email ?? '',
-        token: token,
+        token: token ?? '',
       );
 
       if (result.ok) {
         log('Backend sign-up successful, token: ${result.token}');
+        // FIX: Save the JWT from YOUR backend, not the Firebase token.
         var box = Hive.box('authBox');
-        await box.put('token', token);
+        await box.put('token', result.token);
         return true;
       } else {
         if (result.statusCode == 400) {
@@ -143,21 +138,17 @@ class SignUpViewModel extends ChangeNotifier {
     setLoading(true);
 
     try {
-      final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
+      final credential = await AppleSignInService().signInWithApple();
 
-      if (credential.userIdentifier == null) {
+      final user = credential.user;
+      if (user == null) {
         _setError('Something went wrong');
         return false;
       }
 
-      final uid = credential.userIdentifier!;
-      final email = credential.email ?? "";
-      final token = credential.identityToken ?? "";
+      final uid = user.uid;
+      final email = user.email ?? "";
+      final token = await user.getIdToken() ?? "";
 
       final result = await _repo.signUpWithApple(
         uid: uid,
