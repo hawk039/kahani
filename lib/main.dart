@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:kahani_app/presentation%20/home/home.dart';
 import 'package:kahani_app/services/google_signin_service.dart';
-
 import 'package:kahani_app/data/models/story.dart';
 import 'package:kahani_app/data/models/story_metadata.dart';
 import 'package:kahani_app/core/config/config.dart';
 import 'package:kahani_app/data/network/api_client.dart';
-
 import 'package:kahani_app/presentation /auth/login/login_view.dart';
 import 'package:kahani_app/presentation /auth/login/login_view_model.dart';
 import 'package:kahani_app/presentation /home/home_view_model.dart';
 import 'package:kahani_app/presentation /stories/stories.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shimmer/main.dart';
 import 'core/app_routes.dart';
 import 'core/utils/theme.dart';
 import 'firebase_options.dart';
@@ -107,7 +107,7 @@ class AuthWrapper extends StatelessWidget {
     final token = box.get('token', defaultValue: null);
 
     if (token != null && token.isNotEmpty) {
-      return const StoriesPage();
+      return  const HomePage();
     } else {
       return const LoginScreen();
     }
