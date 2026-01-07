@@ -1,13 +1,13 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/data/models/story.dart';
-// FIX: Use relative imports to handle the directory space correctly.
-import '../home/home.dart';
 import '../home/home_view_model.dart';
 import '../profile/widgets/profile_dropdown.dart';
+import 'story_detail_page.dart';
 import 'widgets/filter_chip_widget.dart';
 import 'widgets/story_card.dart';
 import 'widgets/story_card_shimmer.dart';
@@ -18,6 +18,7 @@ import '../../core/utils/assets.dart';
 import '../../core/utils/theme.dart';
 
 class StoriesPage extends StatefulWidget {
+  // FIX: This is no longer a main route, so the routeName can be removed.
   static const routeName = '/stories';
   const StoriesPage({super.key});
 
@@ -73,7 +74,7 @@ class _StoriesPageState extends State<StoriesPage> {
             ),
             if (_isProfileDropdownVisible)
               Positioned(
-                top: 60.h, 
+                top: 60.h,
                 left: 16.w,
                 child: ProfileDropdown(
                   onLogout: () {
@@ -84,12 +85,12 @@ class _StoriesPageState extends State<StoriesPage> {
           ],
         ),
       ),
-      floatingActionButton: _buildFAB(context),
+      // FIX: Removed the redundant FloatingActionButton.
     );
   }
 
   Widget _buildHeader() {
-    const String? imageUrl = null; // Replace with actual user data
+    const String? imageUrl = null;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
@@ -130,38 +131,8 @@ class _StoriesPageState extends State<StoriesPage> {
             ),
           ),
           Text("My Stories", style: AppTheme.heading.copyWith(fontSize: 24.sp)),
-          SizedBox(width: 40.w), // To balance the avatar
+          SizedBox(width: 40.w),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFAB(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          sizeConstraints: BoxConstraints.tightFor(width: 70.r, height: 70.r),
-        ),
-      ),
-      child: FloatingActionButton(
-        onPressed: () async {
-          await showDialog<Story?>(
-            context: context,
-            builder: (context) => Dialog(
-              insetPadding: EdgeInsets.all(16.w),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-              child: SizedBox(
-                width: double.infinity,
-                height: ScreenUtil().screenHeight * 0.8,
-                child: const CreateStoryDialogContent(),
-              ),
-            ),
-          );
-        },
-        backgroundColor: AppTheme.secondary,
-        shape: const CircleBorder(),
-        elevation: 8.0,
-        child: Icon(Icons.auto_awesome, color: AppTheme.textLight, size: 45.r),
       ),
     );
   }
@@ -221,7 +192,7 @@ class _StoriesPageState extends State<StoriesPage> {
       color: Colors.white,
       child: Stack(
         children: [
-          ListView(), // Needed for RefreshIndicator to work
+          ListView(),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -280,19 +251,26 @@ class _StoriesPageState extends State<StoriesPage> {
 
           return Padding(
             padding: EdgeInsets.only(bottom: 12.h),
-            child: GestureDetector(
-              onTap: () async {
-                final updatedStory = await Navigator.pushNamed(
-                  context,
-                  AppRoutes.storyDetail,
-                  arguments: story,
-                ) as Story?;
-
-                if (updatedStory != null) {
-                  homeProvider.updateStoryInList(updatedStory);
+            child: OpenContainer(
+              transitionType: ContainerTransitionType.fade,
+              closedShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              closedColor: AppTheme.surfaceDark,
+              openColor: AppTheme.primary,
+              middleColor: AppTheme.primary,
+              transitionDuration: const Duration(milliseconds: 500),
+              onClosed: (story) {
+                if (story != null) {
+                  homeProvider.updateStoryInList(story as Story);
                 }
               },
-              child: StoryCard(viewModel: cardViewModel),
+              closedBuilder: (BuildContext _, VoidCallback openContainer) {
+                return StoryCard(viewModel: cardViewModel);
+              },
+              openBuilder: (BuildContext _, VoidCallback __) {
+                return StoryDetailPage(story: story);
+              },
             ),
           );
         },

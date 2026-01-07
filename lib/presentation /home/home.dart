@@ -1,153 +1,109 @@
-import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'widget/image_picker.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/utils/theme.dart';
-import '../common _widgets/selectable_chips_list.dart';
 import 'home_view_model.dart';
+import 'widgets/generate_screen.dart';
+import 'widgets/settings_screen.dart';
+import '../stories/stories.dart';
+import '../../core/utils/theme.dart';
 
-class CreateStoryDialogContent extends StatefulWidget {
-  const CreateStoryDialogContent({super.key});
+class HomePage extends StatelessWidget {
+  static const routeName = '/home';
 
-  @override
-  State<CreateStoryDialogContent> createState() => _CreateStoryDialogContentState();
-}
+  const HomePage({super.key});
 
-class _CreateStoryDialogContentState extends State<CreateStoryDialogContent> {
-  final List<String> genres = const [
-    "Fantasy", "Horror", "Sci-Fi", "Romance", "Adventure",
+  static const List<Widget> _widgetOptions = <Widget>[
+    GenerateScreen(),
+    StoriesPage(),
+    SettingsScreen(),
   ];
-
-  final List<String> tones = const [
-    "Funny", "Dark", "Emotional", "Epic", "Dramatic",
-  ];
-
-  final List<String> languages = const [
-    "English", "Spanish", "French", "German", "Hindi", "Japanese", "Mandarin", "Russian",
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final homeProvider = context.read<HomeProvider>();
-      if (homeProvider.sampleImages.isEmpty) {
-        homeProvider.fetchSampleImages();
-      }
-    });
-  }
-
-  Future<void> _generateStory() async {
-    final homeProvider = context.read<HomeProvider>();
-    Uint8List? imageBytes;
-
-    if (homeProvider.selectedSampleUrl != null) {
-      imageBytes = await homeProvider.downloadImage(homeProvider.selectedSampleUrl!);
-      if (imageBytes == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to download sample image.")),
-        );
-        return;
-      }
-    } else {
-      imageBytes = homeProvider.selectedImage;
-    }
-
-    if (imageBytes == null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select an image.")),
-      );
-      return;
-    }
-
-    final story = await homeProvider.generateStory(imageBytes: imageBytes!);
-
-    if (story != null && mounted) {
-      Navigator.of(context).pop();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    // The entire UI now listens to the HomeProvider.
     final homeProvider = context.watch<HomeProvider>();
-    final theme = Theme.of(context);
 
-    if (homeProvider.generationError != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(homeProvider.generationError!),
-              backgroundColor: AppTheme.secondary,
-            ),
-          );
-          homeProvider.clearGenerationError();
-        }
-      });
-    }
+    return Scaffold(
+      backgroundColor: AppTheme.primary,
+      body: IndexedStack(
+        index: homeProvider.selectedIndex,
+        children: _widgetOptions,
+      ),
+      bottomNavigationBar: _buildCustomBottomNavBar(context, homeProvider),
+    );
+  }
 
-    return Padding(
-      padding: EdgeInsets.all(16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildCustomBottomNavBar(BuildContext context, HomeProvider homeProvider) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final double tabWidth = screenWidth / 3;
+    final double circlePosition = homeProvider.selectedIndex * tabWidth;
+
+    return Container(
+      height: 80.h,
+      decoration: const BoxDecoration(
+        color: AppTheme.surfaceDark,
+        border: Border(top: BorderSide(color: AppTheme.borderDarker, width: 1.5)),
+      ),
+      child: Stack(
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  HorizontalImagePicker(
-                    sampleImages: homeProvider.sampleImages,
-                    selectedImageBytes: homeProvider.selectedImage,
-                    selectedSampleUrl: homeProvider.selectedSampleUrl,
-                    onUploadTap: homeProvider.pickImage,
-                    onSampleSelected: homeProvider.selectSample,
-                    onScrolledToEnd: homeProvider.fetchSampleImages,
-                    onLocalImageSelected: homeProvider.setActiveLocalImage,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text("Select Genre", style: theme.textTheme.titleMedium?.copyWith(fontSize: 18.sp)),
-                  SizedBox(height: 8.h),
-                  SelectableChipList(options: genres, chipType: ChipType.genre),
-                  SizedBox(height: 20.h),
-                  Text("Choose a Tone", style: theme.textTheme.titleMedium?.copyWith(fontSize: 18.sp)),
-                  SizedBox(height: 8.h),
-                  SelectableChipList(options: tones, chipType: ChipType.tone),
-                  SizedBox(height: 20.h),
-                  Text("Select Language", style: theme.textTheme.titleMedium?.copyWith(fontSize: 18.sp)),
-                  SizedBox(height: 8.h),
-                  SelectableChipList(options: languages, chipType: ChipType.language),
-                ],
-              ), 
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            left: circlePosition,
+            width: tabWidth,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: Container(
+                width: 70,
+                height: 70,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.secondary,
+                ),
+              ),
             ),
           ),
-          SizedBox(height: 20.h),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: homeProvider.isGeneratingStory ? null : _generateStory,
-              icon: homeProvider.isGeneratingStory
-                  ? const CupertinoActivityIndicator(color: Colors.white)
-                  : Icon(Icons.auto_awesome, color: AppTheme.textLight, size: 24.r),
-              label: Padding(
-                padding: EdgeInsets.symmetric(vertical: 14.h),
-                child: Text(
-                  "Generate Story",
-                  style: TextStyle(color: AppTheme.textLight, fontSize: 16.sp),
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.secondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14.r),
-                ),
-              ),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(context, homeProvider, icon: Symbols.stylus_fountain_pen, label: 'Generate', index: 0),
+              _buildNavItem(context, homeProvider, icon: Icons.auto_stories, label: 'Stories', index: 1),
+              _buildNavItem(context, homeProvider, icon: Icons.settings, label: 'Settings', index: 2),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(BuildContext context, HomeProvider homeProvider, {required IconData icon, required String label, required int index}) {
+    final isSelected = homeProvider.selectedIndex == index;
+    final color = isSelected ? Colors.white : AppTheme.textMutedDark;
+
+    return Expanded(
+      child: InkWell(
+        // Tapping now calls the provider method.
+        onTap: () => homeProvider.setTabIndex(index),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 28.sp),
+            SizedBox(height: 4.h),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

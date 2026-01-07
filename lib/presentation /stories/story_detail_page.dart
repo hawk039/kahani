@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kahani_app/data/models/story.dart';
 import 'package:kahani_app/core/utils/theme.dart';
-// FIX: Corrected the broken import path.
-import 'package:kahani_app/presentation /stories/story_detail_view_model.dart';
+import 'story_detail_view_model.dart';
 import 'package:provider/provider.dart';
 import 'widgets/story_action_bar.dart';
 
@@ -27,7 +26,6 @@ class StoryDetailPage extends StatelessWidget {
         },
         child: Consumer<StoryDetailViewModel>(
           builder: (context, viewModel, child) {
-            // Show a SnackBar if there is an error message.
             if (viewModel.errorMessage != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -36,7 +34,7 @@ class StoryDetailPage extends StatelessWidget {
                     backgroundColor: Colors.red,
                   ),
                 );
-                viewModel.clearError(); // Clear error after showing.
+                viewModel.clearError();
               });
             }
 
@@ -50,6 +48,7 @@ class StoryDetailPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Remove Hero from here
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                               child: ClipRRect(
@@ -69,8 +68,7 @@ class StoryDetailPage extends StatelessWidget {
                                     ),
                                     errorWidget: (context, url, error) => Container(
                                       color: AppTheme.borderDarker,
-                                      child: const Icon(Icons.image_not_supported,
-                                          color: AppTheme.textMutedDark),
+                                      child: const Icon(Icons.image_not_supported, color: AppTheme.textMutedDark),
                                     ),
                                   ),
                                 ),
@@ -81,6 +79,7 @@ class StoryDetailPage extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Remove Hero from here
                                   Text(
                                     viewModel.title,
                                     style: AppTheme.heading.copyWith(fontSize: 24.sp),
