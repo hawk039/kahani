@@ -62,12 +62,11 @@ class _GenerateScreenState extends State<GenerateScreen> {
       return;
     }
 
+    // The generateStory method in the provider now handles navigation.
     final story = await homeProvider.generateStory(imageBytes: imageBytes!);
 
+    // FIX: Remove the SnackBar and just clean the state.
     if (story != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Story generated successfully!")),
-      );
       homeProvider.resetSelections();
     }
   }
@@ -98,7 +97,7 @@ class _GenerateScreenState extends State<GenerateScreen> {
           children: [
             // Header
             Container(
-              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
               child: Center(
                 child: Text(
                   "imagine your story",

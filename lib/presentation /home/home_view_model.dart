@@ -26,6 +26,9 @@ class HomeProvider extends ChangeNotifier {
   SortBy _sortBy = SortBy.newest;
   String? _filterGenre;
 
+  // --- Navigation State ---
+  int _selectedIndex = 1; // Add this for navigation
+
   // --- Other existing states ---
   String? _selectedGenre;
   String? _selectedTone;
@@ -54,6 +57,7 @@ class HomeProvider extends ChangeNotifier {
   String? get generationError => _generationError;
   String? get filterGenre => _filterGenre;
   SortBy get sortBy => _sortBy;
+  int get selectedIndex => _selectedIndex; // Add this getter
 
   List<Story> get filteredStories {
     List<Story> filtered = List.from(stories);
@@ -79,6 +83,12 @@ class HomeProvider extends ChangeNotifier {
         break;
     }
     return filtered;
+  }
+
+  // --- UI Actions & State Management ---
+  void setTabIndex(int index) {
+    _selectedIndex = index;
+    notifyListeners();
   }
 
   Future<Uint8List?> downloadImage(String url) async {
@@ -135,7 +145,6 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  // --- UI Actions & Filters ---
   void setSearchQuery(String query) {
     _searchQuery = query;
     notifyListeners();
@@ -166,7 +175,6 @@ class HomeProvider extends ChangeNotifier {
 
   void setSelectedImage(Uint8List? imageBytes) {
     _selectedImage = imageBytes;
-    // When a new local image is set, it should become the active selection.
     _selectedSampleUrl = null;
     notifyListeners();
   }
@@ -176,7 +184,6 @@ class HomeProvider extends ChangeNotifier {
     final imageFile = await picker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
       _selectedImage = await imageFile.readAsBytes();
-      // Make the newly picked image the active selection.
       _selectedSampleUrl = null;
       notifyListeners();
     }
@@ -184,8 +191,6 @@ class HomeProvider extends ChangeNotifier {
 
   void selectSample(String url) {
     _selectedSampleUrl = url;
-    // Unselect local image if a sample is chosen.
-    // _selectedImage = null; // This is not ideal UX, let's keep the local image available
     notifyListeners();
   }
 
@@ -223,6 +228,8 @@ class HomeProvider extends ChangeNotifier {
       stories.insert(0, newStory);
       await _saveStory(newStory);
       _isGeneratingStory = false;
+       // Switch to stories tab after generation
+      setTabIndex(1);
       notifyListeners();
       return newStory;
     } else {

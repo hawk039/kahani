@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:material_symbols_icons/symbols.dart';
-// Corrected import paths
+import 'package:provider/provider.dart';
+
+import 'home_view_model.dart';
 import 'widgets/generate_screen.dart';
 import 'widgets/settings_screen.dart';
 import '../stories/stories.dart';
-
 import '../../core/utils/theme.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   static const routeName = '/home';
 
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 1; // Default to the Stories tab
 
   static const List<Widget> _widgetOptions = <Widget>[
     GenerateScreen(),
@@ -26,25 +20,25 @@ class _HomePageState extends State<HomePage> {
     SettingsScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    // The entire UI now listens to the HomeProvider.
+    final homeProvider = context.watch<HomeProvider>();
+
     return Scaffold(
       backgroundColor: AppTheme.primary,
-      body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
-      bottomNavigationBar: _buildCustomBottomNavBar(),
+      body: IndexedStack(
+        index: homeProvider.selectedIndex,
+        children: _widgetOptions,
+      ),
+      bottomNavigationBar: _buildCustomBottomNavBar(context, homeProvider),
     );
   }
 
-  Widget _buildCustomBottomNavBar() {
+  Widget _buildCustomBottomNavBar(BuildContext context, HomeProvider homeProvider) {
     final screenWidth = MediaQuery.of(context).size.width;
     final double tabWidth = screenWidth / 3;
-    final double circlePosition = _selectedIndex * tabWidth;
+    final double circlePosition = homeProvider.selectedIndex * tabWidth;
 
     return Container(
       height: 80.h,
@@ -54,7 +48,6 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Stack(
         children: [
-          // Animated blue circle background
           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -64,22 +57,21 @@ class _HomePageState extends State<HomePage> {
             bottom: 0,
             child: Center(
               child: Container(
-                width: 70, // Size of the circle
+                width: 70,
                 height: 70,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.secondary, 
+                  color: AppTheme.secondary,
                 ),
               ),
             ),
           ),
-          // The icons and text row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(icon: Symbols.stylus_fountain_pen, label: 'Generate', index: 0),
-              _buildNavItem(icon: Icons.auto_stories, label: 'Stories', index: 1),
-              _buildNavItem(icon: Icons.settings, label: 'Settings', index: 2),
+              _buildNavItem(context, homeProvider, icon: Symbols.stylus_fountain_pen, label: 'Generate', index: 0),
+              _buildNavItem(context, homeProvider, icon: Icons.auto_stories, label: 'Stories', index: 1),
+              _buildNavItem(context, homeProvider, icon: Icons.settings, label: 'Settings', index: 2),
             ],
           ),
         ],
@@ -87,14 +79,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildNavItem({required IconData icon, required String label, required int index}) {
-    final isSelected = _selectedIndex == index;
-    // The icon is always white when inside the moving circle, otherwise it's muted.
+  Widget _buildNavItem(BuildContext context, HomeProvider homeProvider, {required IconData icon, required String label, required int index}) {
+    final isSelected = homeProvider.selectedIndex == index;
     final color = isSelected ? Colors.white : AppTheme.textMutedDark;
 
     return Expanded(
       child: InkWell(
-        onTap: () => _onItemTapped(index),
+        // Tapping now calls the provider method.
+        onTap: () => homeProvider.setTabIndex(index),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         child: Column(
