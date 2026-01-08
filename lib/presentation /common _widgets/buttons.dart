@@ -1,11 +1,15 @@
-// lib/presentation/auth/signup/widgets/buttons.dart
 import 'package:flutter/material.dart';
-import '../../core/utils/theme.dart';
+import '../../../core/utils/theme.dart';
 
-class SignupButton extends StatelessWidget {
+class PrimaryButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final String label;
 
-  const SignupButton({super.key, required this.onPressed});
+  const PrimaryButton({
+    super.key,
+    required this.onPressed,
+    this.label = 'Sign Up', // Default for convenience
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,15 +19,13 @@ class SignupButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.primary == Colors.black
-              ? AppTheme.secondary
-              : AppTheme.secondary,
+          backgroundColor: AppTheme.secondary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: Text(
-          'Sign Up',
+          label,
           style: AppTheme.buttonText.copyWith(color: AppTheme.textLight),
         ),
       ),
