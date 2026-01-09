@@ -19,6 +19,10 @@ class SignUpViewModel extends ChangeNotifier {
   String? _passwordErrorMessage;
   String? get passwordErrorMessage => _passwordErrorMessage;
 
+  // FIX: Added state for successful signup to drive reactive navigation
+  bool _signUpSuccess = false;
+  bool get signUpSuccess => _signUpSuccess;
+
   final AuthRepository _repo = AuthRepository();
   final GoogleSignInService _googleSignInService = GoogleSignInService();
 
@@ -47,7 +51,12 @@ class SignUpViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> onSignUp() async {
+  // FIX: Reset success state
+  void clearSignUpSuccess() {
+    _signUpSuccess = false;
+  }
+
+  Future<void> onSignUp() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
 
@@ -56,12 +65,12 @@ class SignUpViewModel extends ChangeNotifier {
 
     if (email.isEmpty || password.isEmpty) {
       _setError('Something went wrong');
-      return false;
+      return;
     }
 
     if (password.length < 6) {
       _setPasswordError('Password must be at least 6 characters');
-      return false;
+      return;
     }
 
     setLoading(true);
@@ -72,24 +81,23 @@ class SignUpViewModel extends ChangeNotifier {
         log(result.token.toString());
         var box = Hive.box('authBox');
         await box.put('token', result.token);
-        return true;
+        _signUpSuccess = true; // Set success state
+        notifyListeners();
       } else {
         if (result.statusCode == 400) {
           _setPasswordError(result.error);
         } else {
           _setError('Something went wrong');
         }
-        return false;
       }
     } catch (e) {
       _setError('Something went wrong');
-      return false;
     } finally {
       setLoading(false);
     }
   }
 
-  Future<bool> onGoogleSignUp() async {
+  Future<void> onGoogleSignUp() async {
     clearError();
     setLoading(true);
 
@@ -99,7 +107,7 @@ class SignUpViewModel extends ChangeNotifier {
 
       if (user == null) {
         _setError('Something went wrong');
-        return false;
+        return;
       }
 
       log('Google Sign-Up successful: ${user.email}, UID: ${user.uid}');
@@ -113,27 +121,25 @@ class SignUpViewModel extends ChangeNotifier {
 
       if (result.ok) {
         log('Backend sign-up successful, token: ${result.token}');
-        // FIX: Save the JWT from YOUR backend, not the Firebase token.
         var box = Hive.box('authBox');
         await box.put('token', result.token);
-        return true;
+        _signUpSuccess = true; // Set success state
+        notifyListeners();
       } else {
         if (result.statusCode == 400) {
           _setError(result.error);
         } else {
           _setError('Something went wrong');
         }
-        return false;
       }
     } catch (e) {
       _setError('Something went wrong');
-      return false;
     } finally {
       setLoading(false);
     }
   }
 
-  Future<bool> onAppleSignUp() async {
+  Future<void> onAppleSignUp() async {
     clearError();
     setLoading(true);
 
@@ -143,7 +149,7 @@ class SignUpViewModel extends ChangeNotifier {
       final user = credential.user;
       if (user == null) {
         _setError('Something went wrong');
-        return false;
+        return;
       }
 
       final uid = user.uid;
@@ -160,18 +166,17 @@ class SignUpViewModel extends ChangeNotifier {
         log('Backend Apple Sign-Up successful, token: ${result.token}');
         var box = Hive.box('authBox');
         await box.put('token', result.token);
-        return true;
+        _signUpSuccess = true; // Set success state
+        notifyListeners();
       } else {
         if (result.statusCode == 400) {
           _setError(result.error);
         } else {
           _setError('Something went wrong');
         }
-        return false;
       }
     } catch (e) {
       _setError('Something went wrong');
-      return false;
     } finally {
       setLoading(false);
     }

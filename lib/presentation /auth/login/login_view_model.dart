@@ -20,6 +20,10 @@ class LoginViewModel extends ChangeNotifier {
   String? _passwordErrorMessage;
   String? get passwordErrorMessage => _passwordErrorMessage;
 
+  // FIX: Added a state for successful login to drive reactive navigation
+  bool _loginSuccess = false;
+  bool get loginSuccess => _loginSuccess;
+
   final AuthRepository _repo = AuthRepository();
   final GoogleSignInService _googleSignInService = GoogleSignInService();
 
@@ -48,7 +52,12 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> onLogin() async {
+  // FIX: Reset the success state
+  void clearLoginSuccess() {
+    _loginSuccess = false;
+  }
+
+  Future<void> onLogin() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
     clearError();
@@ -56,7 +65,7 @@ class LoginViewModel extends ChangeNotifier {
 
     if (email.isEmpty || password.isEmpty) {
       _setError('Something went wrong');
-      return false;
+      return;
     }
 
     setLoading(true);
@@ -70,24 +79,23 @@ class LoginViewModel extends ChangeNotifier {
         await box.put('token', token);
 
         log("Login Success: $token");
-        return true;
+        _loginSuccess = true; // Set success state
+        notifyListeners();
       } else {
         if (result.statusCode == 400) {
           _setPasswordError(result.error);
         } else {
           _setError('Something went wrong');
         }
-        return false;
       }
     } catch (e) {
       _setError('Something went wrong');
-      return false;
     } finally {
       setLoading(false);
     }
   }
 
-  Future<bool> onGoogleLogin() async {
+  Future<void> onGoogleLogin() async {
     clearError();
     setLoading(true);
 
@@ -97,7 +105,7 @@ class LoginViewModel extends ChangeNotifier {
 
       if (user == null) {
         _setError('Something went wrong');
-        return false;
+        return;
       }
 
       final token = await user.getIdToken();
@@ -108,29 +116,27 @@ class LoginViewModel extends ChangeNotifier {
       );
 
       if (result.ok) {
-        // FIX: Save the JWT from YOUR backend, not the Firebase token.
         var box = Hive.box('authBox');
         await box.put('token', result.token);
 
         log('Google Login Successful → Token saved');
-        return true;
+        _loginSuccess = true; // Set success state
+        notifyListeners();
       } else {
         if (result.statusCode == 400) {
           _setError(result.error);
         } else {
           _setError('Something went wrong');
         }
-        return false;
       }
     } catch (e) {
       _setError('Something went wrong');
-      return false;
     } finally {
       setLoading(false);
     }
   }
 
-  Future<bool> onAppleLogin() async {
+  Future<void> onAppleLogin() async {
     clearError();
     setLoading(true);
 
@@ -141,7 +147,7 @@ class LoginViewModel extends ChangeNotifier {
 
       if (user == null) {
         _setError('Something went wrong');
-        return false;
+        return;
       }
 
       final uid = user.uid;
@@ -159,18 +165,17 @@ class LoginViewModel extends ChangeNotifier {
         await box.put('token', result.token ?? "");
 
         log('Apple Login Successful → Token saved locally');
-        return true;
+        _loginSuccess = true; // Set success state
+        notifyListeners();
       } else {
         if (result.statusCode == 400) {
           _setError(result.error);
         } else {
           _setError('Something went wrong');
         }
-        return false;
       }
     } catch (e) {
       _setError("Something went wrong");
-      return false;
     } finally {
       setLoading(false);
     }

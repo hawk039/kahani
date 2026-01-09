@@ -22,7 +22,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The entire UI now listens to the HomeProvider.
     final homeProvider = context.watch<HomeProvider>();
 
     return Scaffold(
@@ -85,7 +84,6 @@ class HomePage extends StatelessWidget {
 
     return Expanded(
       child: InkWell(
-        // Tapping now calls the provider method.
         onTap: () => homeProvider.setTabIndex(index),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,

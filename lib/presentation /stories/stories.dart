@@ -2,7 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/data/models/story.dart';
 import '../home/home_view_model.dart';
@@ -18,7 +18,6 @@ import '../../core/utils/assets.dart';
 import '../../core/utils/theme.dart';
 
 class StoriesPage extends StatefulWidget {
-  // FIX: This is no longer a main route, so the routeName can be removed.
   static const routeName = '/stories';
   const StoriesPage({super.key});
 
@@ -33,11 +32,16 @@ class _StoriesPageState extends State<StoriesPage> {
   @override
   void initState() {
     super.initState();
-    final homeProvider = Provider.of<HomeProvider>(context, listen: false);
-    homeProvider.fetchStories(isInitial: true);
+    // FIX: Schedule the fetch to run after the first frame is built.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<HomeProvider>(context, listen: false).fetchStories(isInitial: true);
+    });
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      // Use the provider from a scope that is allowed to listen.
+      final homeProvider = context.read<HomeProvider>();
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
         homeProvider.fetchStories();
       }
     });
@@ -52,7 +56,10 @@ class _StoriesPageState extends State<StoriesPage> {
   @override
   Widget build(BuildContext context) {
     final homeProvider = context.watch<HomeProvider>();
-    final uniqueGenres = homeProvider.stories.map((s) => s.metadata.genre).toSet().toList();
+    final uniqueGenres = homeProvider.stories
+        .map((s) => s.metadata.genre)
+        .toSet()
+        .toList();
 
     return Scaffold(
       backgroundColor: AppTheme.primary,
@@ -62,7 +69,8 @@ class _StoriesPageState extends State<StoriesPage> {
             Column(
               children: [
                 _buildHeader(),
-                if (homeProvider.stories.isNotEmpty) _buildFilterSection(homeProvider, uniqueGenres),
+                if (homeProvider.stories.isNotEmpty)
+                  _buildFilterSection(homeProvider, uniqueGenres),
                 Expanded(
                   child: homeProvider.isLoading && homeProvider.stories.isEmpty
                       ? _buildShimmerList()
@@ -78,14 +86,16 @@ class _StoriesPageState extends State<StoriesPage> {
                 left: 16.w,
                 child: ProfileDropdown(
                   onLogout: () {
-                    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.login,
+                      (route) => false,
+                    );
                   },
                 ),
               ),
           ],
         ),
       ),
-      // FIX: Removed the redundant FloatingActionButton.
     );
   }
 
@@ -122,11 +132,7 @@ class _StoriesPageState extends State<StoriesPage> {
                           height: 40.r,
                         ),
                       )
-                    : Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 24.r,
-                      ),
+                    :  Icon(Icons.person, color: Colors.white, size: 24.r),
               ),
             ),
           ),
@@ -137,7 +143,10 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
-  Widget _buildFilterSection(HomeProvider homeProvider, List<String> uniqueGenres) {
+  Widget _buildFilterSection(
+    HomeProvider homeProvider,
+    List<String> uniqueGenres,
+  ) {
     return Column(
       children: [
         Padding(
@@ -148,12 +157,28 @@ class _StoriesPageState extends State<StoriesPage> {
             cursorColor: AppTheme.textLight,
             decoration: InputDecoration(
               hintText: "Search your stories...",
-              prefixIcon: Icon(Icons.search, color: AppTheme.textMutedDark, size: 24.r),
+              prefixIcon: Icon(
+                Icons.search,
+                color: AppTheme.textMutedDark,
+                size: 24.r,
+              ),
               filled: true,
               fillColor: AppTheme.borderDarker,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: BorderSide.none),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: AppTheme.secondary, width: 2)),
-              hintStyle: TextStyle(color: AppTheme.textMutedDark, fontSize: 16.sp),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(
+                  color: AppTheme.secondary,
+                  width: 2,
+                ),
+              ),
+              hintStyle: TextStyle(
+                color: AppTheme.textMutedDark,
+                fontSize: 16.sp,
+              ),
             ),
           ),
         ),
@@ -164,19 +189,25 @@ class _StoriesPageState extends State<StoriesPage> {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             children: [
               FilterChipWidget(
-                label: homeProvider.sortBy == SortBy.newest ? "Sort: Newest" : "Sort: Oldest",
+                label: homeProvider.sortBy == SortBy.newest
+                    ? "Sort: Newest"
+                    : "Sort: Oldest",
                 icon: Icons.sort,
                 isSelected: true,
                 onTap: () {
-                  final newSort = homeProvider.sortBy == SortBy.newest ? SortBy.oldest : SortBy.newest;
+                  final newSort = homeProvider.sortBy == SortBy.newest
+                      ? SortBy.oldest
+                      : SortBy.newest;
                   homeProvider.setSortBy(newSort);
                 },
               ),
-              ...uniqueGenres.map((genre) => FilterChipWidget(
-                    label: genre,
-                    isSelected: homeProvider.filterGenre == genre,
-                    onTap: () => homeProvider.setFilterGenre(genre),
-                  )),
+              ...uniqueGenres.map(
+                (genre) => FilterChipWidget(
+                  label: genre,
+                  isSelected: homeProvider.filterGenre == genre,
+                  onTap: () => homeProvider.setFilterGenre(genre),
+                ),
+              ),
             ],
           ),
         ),
@@ -197,18 +228,19 @@ class _StoriesPageState extends State<StoriesPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding: EdgeInsets.all(48.r),
-                  decoration: const BoxDecoration(color: AppTheme.secondary, shape: BoxShape.circle),
-                  child: SvgPicture.asset(
-                    AppAssets.feather,
-                    width: 64.w,
-                    height: 64.h,
-                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                  ),
+                Lottie.asset(
+                  AppAssets.parchmentAnimation,
+                  width: 300.w,
+                  height: 300.h,
                 ),
                 SizedBox(height: 24.h),
-                Text("No stories yet. Begin your journey!", style: TextStyle(color: AppTheme.textMutedDark, fontSize: 18.sp)),
+                Text(
+                  "No stories yet. Begin your journey!",
+                  style: TextStyle(
+                    color: AppTheme.textMutedDark,
+                    fontSize: 18.sp,
+                  ),
+                ),
               ],
             ),
           ),
@@ -237,12 +269,15 @@ class _StoriesPageState extends State<StoriesPage> {
       child: ListView.builder(
         controller: _scrollController,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        itemCount: homeProvider.filteredStories.length + (homeProvider.isFetchingMore ? 1 : 0),
+        itemCount: homeProvider.filteredStories.length +
+            (homeProvider.isFetchingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= homeProvider.filteredStories.length) {
             return const Padding(
               padding: EdgeInsets.symmetric(vertical: 24.0),
-              child: Center(child: CupertinoActivityIndicator(color: AppTheme.secondary)),
+              child: Center(
+                child: CupertinoActivityIndicator(color: AppTheme.secondary),
+              ),
             );
           }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Colors
@@ -17,41 +18,36 @@ class AppTheme {
   static const Color textMutedLight = Color(0xFF6B7280);
   static const Color textMutedDark = Color(0xFF9CA3AF);
 
-  // Fonts
-  static const String fontFamily = "SpaceGrotesk";
+  // Glossy Effect Colors
+  static Color glossyBackground = Colors.white.withOpacity(0.05);
+  static Color glossyBorder = Colors.white.withOpacity(0.1);
 
   // Text Styles
-  static final TextStyle heading = TextStyle(
-    fontFamily: fontFamily,
+  static final TextStyle heading = GoogleFonts.spaceGrotesk(
     fontSize: 20,
     fontWeight: FontWeight.bold,
     color: textLight,
   );
 
-  static final TextStyle label = TextStyle(
-    fontFamily: fontFamily,
+  static final TextStyle label = GoogleFonts.spaceGrotesk(
     fontSize: 16,
     fontWeight: FontWeight.w500,
     color: textLight,
   );
 
-  static final TextStyle input = TextStyle(
-    fontFamily: fontFamily,
+  static final TextStyle input = GoogleFonts.spaceGrotesk(
     fontSize: 16,
     fontWeight: FontWeight.normal,
     color: primary,
   );
 
-  static final TextStyle buttonText = TextStyle(
-    fontFamily: fontFamily,
+  static final TextStyle buttonText = GoogleFonts.spaceGrotesk(
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: textLight,
   );
 
-  // New Space Grotesk specific style (optional usage)
-  static final TextStyle spaceGrotesk = TextStyle(
-    fontFamily: "SpaceGrotesk",
+  static final TextStyle spaceGrotesk = GoogleFonts.spaceGrotesk(
     fontSize: 14,
     fontWeight: FontWeight.normal,
     color: textDark,
@@ -67,7 +63,7 @@ class AppTheme {
     brightness: Brightness.light,
     primaryColor: primary,
     scaffoldBackgroundColor: backgroundLight,
-    fontFamily: fontFamily,
+    textTheme: GoogleFonts.spaceGroteskTextTheme(ThemeData.light().textTheme),
     colorScheme: ColorScheme.light(
       primary: primary,
       secondary: secondary,
@@ -89,13 +85,13 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: secondary),
       ),
-      hintStyle: TextStyle(color: textMutedLight),
+      hintStyle: GoogleFonts.spaceGrotesk(color: textMutedLight),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: secondary,
         foregroundColor: textLight,
-        textStyle: buttonText,
+        textStyle: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
@@ -107,7 +103,7 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: primary,
     scaffoldBackgroundColor: backgroundDark,
-    fontFamily: fontFamily,
+    textTheme: GoogleFonts.spaceGroteskTextTheme(ThemeData.dark().textTheme),
     colorScheme: ColorScheme.dark(
       primary: primary,
       secondary: secondary,
@@ -137,14 +133,14 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: secondary),
       ),
-      hintStyle: TextStyle(color: textMutedDark),
+      hintStyle: GoogleFonts.spaceGrotesk(color: textMutedDark),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: secondary,
         foregroundColor: textLight,
-        textStyle: buttonText,
+        textStyle: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.bold),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),

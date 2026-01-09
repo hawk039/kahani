@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kahani_app/core/app_routes.dart';
 import 'package:kahani_app/core/utils/theme.dart';
-import 'package:kahani_app/presentation%20/auth/login/login_view_model.dart';
-import 'package:kahani_app/presentation%20/common%20_widgets/email_field.dart';
-import 'package:kahani_app/presentation%20/common%20_widgets/password_field.dart';
-import 'package:kahani_app/presentation%20/common%20_widgets/buttons.dart';
-import 'package:kahani_app/presentation%20/common%20_widgets/social_button.dart';
+import 'package:kahani_app/presentation /auth/login/login_view_model.dart';
+import 'package:kahani_app/presentation /common _widgets/email_field.dart';
+import 'package:kahani_app/presentation /common _widgets/password_field.dart';
+import 'package:kahani_app/presentation /common _widgets/buttons.dart';
+import 'package:kahani_app/presentation /common _widgets/social_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/utils/assets.dart';
@@ -22,9 +22,14 @@ class LoginScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final vm = context.watch<LoginViewModel>();
 
-    // Listen for non-password errors and show a SnackBar
-    if (vm.errorMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    // FIX: Centralized reactive listener for success and error states
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (vm.loginSuccess) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+        vm.clearLoginSuccess(); // Reset state
+      }
+
+      if (vm.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -34,9 +39,9 @@ class LoginScreen extends StatelessWidget {
             backgroundColor: AppTheme.secondary,
           ),
         );
-        vm.clearError(); // Clear the error after showing it
-      });
-    }
+        vm.clearError();
+      }
+    });
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF101522) : AppTheme.primary,
@@ -97,14 +102,8 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              SignupButton(
-                onPressed: () async {
-                  final loggedIn = await vm.onLogin();
-                  if (loggedIn) {
-                    Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
-                  }
-                },
-              ),
+              // FIX: Button callbacks are now incredibly clean.
+              PrimaryButton(onPressed: vm.onLogin,label: "LogIn",),
 
               const SizedBox(height: 32),
 
@@ -131,12 +130,7 @@ class LoginScreen extends StatelessWidget {
                         height: 40,
                       ),
                       label: 'Google',
-                      onPressed: () async {
-                        final ok = await vm.onGoogleLogin();
-                        if (ok) {
-                          Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
-                        }
-                      },
+                      onPressed: vm.onGoogleLogin, // Direct call
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -148,12 +142,7 @@ class LoginScreen extends StatelessWidget {
                         height: 40,
                       ),
                       label: 'Apple',
-                      onPressed: () async {
-                        final ok = await vm.onAppleLogin();
-                        if (ok) {
-                          Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
-                        }
-                      },
+                      onPressed: vm.onAppleLogin, // Direct call
                     ),
                   ),
                 ],

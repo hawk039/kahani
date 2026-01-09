@@ -14,7 +14,8 @@ dependencies:
 
   animations: ^2.0.11
   convex_bottom_bar: ^3.2.0
-  google_fonts: ^6.2.1 # Add this line
+  google_fonts: ^6.2.1
+  lottie: ^3.1.2
   cupertino_icons: ^1.0.8
   firebase_core: ^4.2.1
   google_sign_in: ^7.2.0
@@ -34,8 +35,6 @@ dependencies:
   shimmer: ^3.0.0
   material_symbols_icons: ^4.0.0
 
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -53,8 +52,8 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
-
-  # FIX: Remove the local fonts section
+    # FIX: Explicitly declare the Lottie file to ensure it's bundled.
+    - assets/icons/Parchment.json
 
 flutter_icons:
   android: true

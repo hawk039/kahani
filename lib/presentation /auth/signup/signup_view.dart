@@ -1,15 +1,12 @@
-// lib/presentation/auth/signup/signup_view.dart
 import 'package:flutter/material.dart';
 import 'package:kahani_app/core/app_routes.dart';
-import 'package:kahani_app/presentation%20/common%20_widgets/password_field.dart';
-import 'package:kahani_app/presentation%20/stories/stories.dart';
+import 'package:kahani_app/presentation /common _widgets/password_field.dart';
 import 'package:provider/provider.dart';
 import '../../../core/utils/theme.dart';
 import '../../../core/utils/assets.dart';
 import '../../common _widgets/auth_redirect_text.dart';
 import '../../common _widgets/buttons.dart';
 import '../../common _widgets/social_button.dart';
-import '../login/login_view.dart';
 import 'signup_view_model.dart';
 import '../../common _widgets/email_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -34,22 +31,26 @@ class _SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<SignUpViewModel>();
 
-    // Listen for non-password errors and show a SnackBar
-    if (vm.errorMessage != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    // FIX: Centralized reactive listener for success, error, and password error states
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (vm.signUpSuccess) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+        vm.clearSignUpSuccess();
+      }
+
+      if (vm.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(vm.errorMessage!, style: const TextStyle(color: AppTheme.textLight)),
             backgroundColor: AppTheme.secondary,
           ),
         );
-        vm.clearError(); // Clear the error after showing it
-      });
-    }
+        vm.clearError();
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppTheme.primary,
-      // adjust if you use dark by default
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -59,7 +60,6 @@ class _SignUpScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Icon container (rounded 5px, white svg)
                   Container(
                     decoration: BoxDecoration(
                       color: AppTheme.secondary,
@@ -89,13 +89,11 @@ class _SignUpScreen extends StatelessWidget {
                       color: AppTheme.textMutedLight,
                       fontSize: 20,
                     ),
-
                     textAlign: TextAlign.center,
                   ),
 
                   const SizedBox(height: 50),
 
-                  // Form
                   EmailField(controller: vm.emailController),
                   const SizedBox(height: 16),
                   PasswordField(
@@ -103,23 +101,18 @@ class _SignUpScreen extends StatelessWidget {
                     errorText: vm.passwordErrorMessage,
                   ),
                   const SizedBox(height: 50),
-                  // Sign up / loading
+                  
                   vm.isLoading
                       ? const CircularProgressIndicator(
                           color: AppTheme.secondary,
                         )
-                      : SignupButton(
-                          onPressed: () async {
-                            final success = await vm.onSignUp();
-                            if (success) {
-                              Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
-                            }
-                          },
+                      : PrimaryButton(
+                          label: 'Sign Up',
+                          onPressed: vm.onSignUp,
                         ),
 
                   const SizedBox(height: 18),
 
-                  // Divider with text
                   Row(
                     children: [
                       Expanded(child: Divider(color: AppTheme.borderDark)),
@@ -140,7 +133,6 @@ class _SignUpScreen extends StatelessWidget {
 
                   const SizedBox(height: 25),
 
-                  // Social buttons
                   Row(
                     children: [
                       Expanded(
@@ -151,14 +143,7 @@ class _SignUpScreen extends StatelessWidget {
                             height: 40,
                           ),
                           label: 'Google',
-                          // iconPath can be a raster or svg path from AppAssets if you add it
-                          onPressed: () async {
-                            final isAuthenticated = await vm.onGoogleSignUp();
-                            if (isAuthenticated) {
-                              // Navigate to Stories screen and remove previous routes
-                              Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
-                            }
-                          },
+                          onPressed: vm.onGoogleSignUp,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -170,13 +155,7 @@ class _SignUpScreen extends StatelessWidget {
                             height: 40,
                           ),
                           label: 'Apple',
-                          onPressed: () async {
-                            final isAuthenticated = await vm.onAppleSignUp();
-                            if (isAuthenticated) {
-                              // Navigate to Stories screen and remove previous routes
-                              Navigator.of(context).pushReplacementNamed(AppRoutes.stories);
-                            }
-                          },
+                          onPressed: vm.onAppleSignUp,
                         ),
                       ),
                     ],
